@@ -1,0 +1,30 @@
+.sidebarBg{
+
+
+    background-color: #001527;
+}
+
+.dflexCulom{
+    height: 100vh;
+justify-content: space-between;
+align-items: center;
+flex-direction: column;
+align-items: center;
+
+}
+.uploadSection{
+    border: 1px solid #cacaca;
+    border-radius: 25px;
+}
+.h75{
+    height: 75vh;
+}
+.bgHome{
+    background-color: #f4f4f4;
+}
+.fsIcon{
+font-size: 200px
+}
+.sideBarBg{
+    background-color: #004077;
+}
