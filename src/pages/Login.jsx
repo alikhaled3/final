@@ -1,8 +1,9 @@
 import Stepper, { Step } from '../components/UI';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, message, Checkbox } from 'antd';
-
+import { Form, Input, message, Checkbox, Button } from 'antd';
+import img from '../assets/drug.jpg'
+import { FileTextOutlined } from '@ant-design/icons';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,7 +21,32 @@ const Login = () => {
 
   return <>
 
-  
+<nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
+        <div className="container-fluid">
+          <a className="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center" href="/">
+            <span className="bg-primary text-white rounded-circle p-2 me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
+              <FileTextOutlined />
+            </span>
+            Pharmacology
+          </a>
+          <div className="ms-auto d-flex align-items-center">
+            <Button
+              type="text"
+              className="me-2 fw-medium"
+              onClick={() => navigate('/login')}
+            >
+              Login
+            </Button>
+            <Button 
+              type="primary" 
+              onClick={() => navigate('/register')}
+              className="fw-medium"
+            >
+              Register
+            </Button>
+          </div>
+        </div>
+      </nav>
 <Stepper
   initialStep={1}
   onStepChange={(step) => {
@@ -34,11 +60,7 @@ const Login = () => {
     <h2>Welcome Back To  Pharmacology!</h2>
     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam perferendis iste neque dolor laborum optio!</p>
   </Step>
-  <Step>
-    <h2>Let's Start With Best Prescription Reader </h2>
-    <img style={{ height: '100px', width: '100%', objectFit: 'cover', objectPosition: 'center -70px', borderRadius: '15px', marginTop: '1em' }} src="https://www.purrfectcatgifts.co.uk/cdn/shop/collections/Funny_Cat_Cards_640x640.png?v=1663150894" />
 
-  </Step>
   <Step >
     <div className="">
   <h2 className='text-center'>Welcom Back</h2>
