@@ -26,13 +26,14 @@ const MedicationExtractor = ({ extractedText, onMedicationsExtracted }) => {
       const response = await axios.post('http://localhost:5000/process/process_text', {
         text: `${extractedText}`
       });
-      console.log(response?.data.map(da =>{da.drug}));
+      console.log(response);
+      
       
       if (response.data.error) {
         setError(response.data.error);
         message.warning(response.data.error);
       } else {
-        setMedications(response.data);
+        setMedications(response.data.results);
         onMedicationsExtracted(response.data);
         message.success('Medications extracted successfully');
       }
