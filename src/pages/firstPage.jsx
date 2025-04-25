@@ -10,6 +10,9 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import img from '../assets/drug.jpg'
+import logo from '../assets/logo.png'
+
+
 const Index = () => {
   const navigate = useNavigate();
 
@@ -44,9 +47,9 @@ const Index = () => {
       {/* Modern Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
         <div className="container-fluid">
-          <a className="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center" href="/">
-            <span className="bg-primary text-white rounded-circle p-2 me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
-              <FileTextOutlined />
+          <a className="navbar-brand fw-bold fs-5 text-primary d-flex align-items-center" href="/">
+            <span className=" text-white rounded-circle me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
+              <img src={logo} alt=""  width={59} />
             </span>
             Pharmacology
           </a>
@@ -88,7 +91,7 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          Eliminating Prescription Errors <br /> with <span className="text-primary">AI Technology</span>
+          Zero Errors Prescription  <br /> with <span className="text-primary">AI Technology</span>
         </motion.h1>
 
         <motion.p
@@ -286,6 +289,7 @@ const Index = () => {
           >
             Join hundreds of healthcare professionals using Pharmacology to prevent medication errors and save lives.
           </motion.p>
+          
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}

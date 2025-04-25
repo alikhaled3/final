@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Input, message, Checkbox, Button } from 'antd';
 import img from '../assets/drug.jpg'
 import { FileTextOutlined } from '@ant-design/icons';
+import logo from '../assets/logo.png'
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,8 +25,8 @@ const Login = () => {
 <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
         <div className="container-fluid">
           <a className="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center" href="/">
-            <span className="bg-primary text-white rounded-circle p-2 me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
-              <FileTextOutlined />
+            <span className=" text-white rounded-circle me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
+              <img src={logo} alt=""  width={59} />
             </span>
             Pharmacology
           </a>

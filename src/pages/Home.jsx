@@ -4,7 +4,7 @@ import { Button, Card } from 'antd';
 import { FileTextOutlined, UploadOutlined } from '@ant-design/icons';
 import UploadFile from './../components/UploadImage';
 import Sidebar from './../components/SideBar';
-
+import logo from '../assets/logo.png'
 function Home() {
   return (
     <div className="home-container d-flex" style={{ minHeight: '100vh' }}>
@@ -13,7 +13,7 @@ function Home() {
 
       {/* Main Content with left margin for sidebar */}
       <motion.div
-        className="flex-grow-1 p-4"
+        className="flex-grow-1 "
         style={{ marginLeft: '250px' }} // Adjust based on your sidebar width
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -32,8 +32,7 @@ function Home() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <FileTextOutlined className="me-2 text-primary" />
-              Prescription Reader
+
             </motion.h2>
             <motion.p
               className="lead text-muted"
@@ -41,7 +40,18 @@ function Home() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              Transform handwritten prescriptions into digital format with AI
+<nav className="navbar navbar-expand-lg navbar-light bg-white ">
+  <div className="container-fluid justify-content-center">
+    <a className="navbar-brand fw-bold fs-5 text-primary d-flex align-items-center" href="/">
+      <span className="text-white rounded-circle me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
+        <div className="">
+          <img src={logo} alt="" width={59} />
+        </div>
+      </span>
+      Pharmacology
+    </a>
+  </div>
+</nav>
             </motion.p>
           </div>
 
