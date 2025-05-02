@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, Card, List, Typography, Spin, message, Tag } from 'antd';
-import { MedicineBoxOutlined, SendOutlined } from '@ant-design/icons';
+import { MedicineBoxOutlined, SendOutlined, SoundOutlined, LoadingOutlined, PauseOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Text, Title } = Typography;
@@ -9,13 +9,14 @@ const MedicationExtractor = ({ extractedText, onMedicationsExtracted }) => {
   const [medications, setMedications] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [playingAudio, setPlayingAudio] = useState(null);
+  const audioRef = useRef(null);
 
   const extractMedications = async () => {
     if (!extractedText) {
       message.error('No text available for extraction');
       return;
     }
-
     
     console.log(extractedText);
     
@@ -27,7 +28,6 @@ const MedicationExtractor = ({ extractedText, onMedicationsExtracted }) => {
         text: `${extractedText}`
       });
       console.log(response);
-      
       
       if (response.data.error) {
         setError(response.data.error);
@@ -53,13 +53,81 @@ const MedicationExtractor = ({ extractedText, onMedicationsExtracted }) => {
     }
   }, [extractedText]);
 
-  const renderMedicationItem = (med) => {
+  // Handle audio playback
+  const playAudio = (audioUrl, medicationId) => {
+    // Stop currently playing audio if any
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    // Create new audio element
+    const audio = new Audio(`http://localhost:5000${audioUrl}`);
+    audioRef.current = audio;
+    
+    // Set the currently playing medication
+    setPlayingAudio(medicationId);
+    
+    // Play the audio
+    audio.play().catch(err => {
+      console.error('Error playing audio:', err);
+      message.error('Failed to play audio');
+      setPlayingAudio(null);
+    });
+    
+    // When audio ends, reset state
+    audio.onended = () => {
+      setPlayingAudio(null);
+      audioRef.current = null;
+    };
+    
+    // If there's an error loading the audio
+    audio.onerror = () => {
+      message.error('Failed to load audio file');
+      setPlayingAudio(null);
+      audioRef.current = null;
+    };
+  };
+
+  // Stop audio playback
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setPlayingAudio(null);
+    }
+  };
+
+  // Clean up audio on component unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const renderMedicationItem = (med, index) => {
+    const isPlaying = playingAudio === index;
+    
     return (
       <List.Item>
         <Card size="small" className="medication-card">
           <div className="medication-header">
             <MedicineBoxOutlined className="medication-icon" />
             <Title level={5} className="medication-name">{med.drug}</Title>
+            
+            {med.audio && (
+              <Button 
+                type="text" 
+                shape="circle"
+                icon={isPlaying ? <PauseOutlined /> : <SoundOutlined />}
+                onClick={() => isPlaying ? stopAudio() : playAudio(med.audio, index)}
+                className="audio-button"
+                loading={isPlaying && playingAudio === 'loading'}
+              />
+            )}
           </div>
           <div className="medication-details">
             {med.dosage && (
@@ -118,7 +186,7 @@ const MedicationExtractor = ({ extractedText, onMedicationsExtracted }) => {
         medications.length > 0 ? (
           <List
             dataSource={medications}
-            renderItem={renderMedicationItem}
+            renderItem={(item, index) => renderMedicationItem(item, index)}
             className="medication-list"
           />
         ) : (

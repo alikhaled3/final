@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from PIL import Image
 from rapidfuzz import process, fuzz
@@ -11,6 +11,10 @@ import cv2
 from ultralytics import YOLO
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from huggingface_hub import hf_hub_download
+from gtts import gTTS  # Replace pyttsx3 with gTTS
+import uuid 
+import os
+import threading
 
 # --- Initialize Flask App ---
 app = Flask(__name__)
@@ -28,6 +32,10 @@ print("Models loaded successfully.")
 df = pd.read_csv('./final.csv')
 words = ["tab", "mg", "g"]
 
+# --- Audio Setup ---
+AUDIO_FOLDER = "audio"
+os.makedirs(AUDIO_FOLDER, exist_ok=True)
+
 # --- Utility Functions ---
 def clean_text(text):
     text = re.sub(r"[\"\'\[\]\(\)\{\}]", '', text)
@@ -42,29 +50,65 @@ def clean_text(text):
     ]
     return ' '.join(filtered)
 
+def generate_audio_background(text, filename):
+    """Generate audio file using gTTS in a separate thread"""
+    def run():
+        try:
+            path = os.path.join(AUDIO_FOLDER, filename)
+            # Check if the file already exists to avoid regeneration
+            if not os.path.exists(path):
+                tts = gTTS(text=text, lang='en', slow=False)
+                tts.save(path)
+                print(f"Audio file generated successfully: {path}")
+        except Exception as e:
+            print(f"Error generating audio: {e}")
+    
+    thread = threading.Thread(target=run)
+    thread.daemon = True  # Make thread daemon so it doesn't block app shutdown
+    thread.start()
+    return thread
+
 def extract_drugs_and_dosages(text):
     cleaned_text = clean_text(text)
-    words_to_match = cleaned_text.split()
+    print(f"Cleaned text: {cleaned_text}")
+    words = cleaned_text.split()
     results = []
     i = 0
-
-    while i < len(words_to_match):
-        word = words_to_match[i]
-
+    threads = []  # Keep track of all audio generation threads
+    
+    while i < len(words):
+        word = words[i]
         if word.isdigit():
             i += 1
             continue
-
+            
         matched, score, _ = process.extractOne(word, df['Extracted_Text'], scorer=fuzz.ratio)
         if score >= 70:
             entry = {"drug": matched}
-            if i + 1 < len(words_to_match) and words_to_match[i + 1].isdigit():
-                entry["dosage"] = words_to_match[i + 1]
+            
+            # Generate sanitized filename
+            safe_name = re.sub(r'[^a-zA-Z0-9]', '_', matched.lower())
+            filename = f"{safe_name}.mp3"
+            
+            # Start audio generation in background
+            thread = generate_audio_background(matched, filename)
+            threads.append(thread)
+            
+            entry["audio"] = f"/audio/{filename}"
+            
+            if i + 1 < len(words) and words[i + 1].isdigit():
+                entry["dosage"] = words[i + 1]
                 i += 1
+                
+            print(entry)
             results.append(entry)
-
         i += 1
-
+    
+    # Optional: Wait for all audio generation to complete
+    # Uncomment if you want to ensure all audio is generated before responding
+    # for thread in threads:
+    #     thread.join()
+    
     return {"results": results}
 
 def segment_text_lines(image):
@@ -100,6 +144,10 @@ def segment_extract_text(image):
     return full_text, Image.fromarray(image_with_boxes)
 
 # --- Routes ---
+@app.route('/audio/<filename>')
+def serve_audio(filename):
+    return send_from_directory(AUDIO_FOLDER, filename)
+
 @app.route('/process/process_text', methods=['POST'])
 def process_text():
     data = request.get_json()
