@@ -14,6 +14,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import img1 from '../assets/drug.jpg'
 import logo from '../assets/logo.png';
+import prescription from '../assets/processed_basic.jpg';
+
+import prescription5 from '../assets/WhatsApp Image 2025-04-25 at 10.34.45 PM.jpeg';
+import prescription6 from '../assets/download (2).jpg';
+import headerImage from '../assets/HomeBack.png';
+import prescription2 from '../assets/download (3).jpg';
+import prescription4 from '../assets/download (1).jpg';
+import image1 from '../assets/images (1).jpg';
+import image2 from '../assets/imageeee.jpg';
+import image3 from '../assets/pexels-photo-7578803.webp';
+import scanImage from '../assets/Illustration-of-a-prescription-coming-out-of-a-computer-576x486.jpg';
+import prescription3 from '../assets/FdZcM0WaMAASabt_1664381414282_1664381437487_1664381437487.webp';
+import ReactCompareImage from 'react-compare-image';
+
+// Add this style tag to include the Caveat font from Google Fonts
+const caveatStyle = {
+  fontFamily: "'Caveat', cursive",
+  fontWeight: 'bold'
+};
 
 const { Meta } = Card;
 const Index = () => {
@@ -23,6 +42,8 @@ const Index = () => {
   // Prescription card data
   const prescriptionCards = [
     {
+      imageBeforeAnalyze: prescription,
+      imageAfterAnalyze: prescription2,
       image: img1,
       patient: "John Doe",
       date: "2023-05-15",
@@ -33,6 +54,8 @@ const Index = () => {
       notes: "Take with food. Monitor blood pressure regularly."
     },
     {
+      imageBeforeAnalyze:prescription3 ,
+      imageAfterAnalyze:prescription4 ,
       image: img1,
       patient: "Sarah Smith",
       date: "2023-06-20",
@@ -43,19 +66,37 @@ const Index = () => {
       notes: "Use inhaler before exercise. Report any muscle pain."
     },
     {
+      imageBeforeAnalyze: prescription5,
+      imageAfterAnalyze: prescription6,
       image: img1,
       patient: "Michael Johnson",
       date: "2023-07-10",
       medications: [
         { name: "Levothyroxine", dosage: "50mcg", frequency: "Morning empty stomach", duration: "60 days" },
-        { name: "Omeprazole", dosage: "20mg", frequency: "Once daily", duration: "30 days" }
+        { name: "Omeprazole", dosage: "20mg", frequency: "Once daily", duration: "30 days" },
+        { name: "Levothyroxine", dosage: "50mcg", frequency: "Morning empty stomach", duration: "60 days" },
       ],
       notes: "Take thyroid med at least 30 mins before breakfast."
     },
   ];
-  // Auto-advance slider
 
-
+  const features = [
+  {
+    title: "Smart Image Enhancement",  
+    description: "Automatically sharpen and crop scanned prescriptions for optimal clarity",  
+    image: image1
+  },  
+  {
+    title: "Precision Text Segmentation",  
+    description: "AI extracts medication details by isolating text regions from handwritten scripts",  
+    image: image2
+  },  
+  {
+    title: "Structured Data Output",  
+    description: "Converts segmented text into organized digital records for error-free processing",  
+    image: image3
+  }
+];
   // Statistics data
   const stats = [
     { title: "Annual Deaths from Prescription Errors", value: "7,000+", icon: <WarningOutlined />, color: "#ff4d4f" },
@@ -64,30 +105,16 @@ const Index = () => {
     { title: "Hospitals Affected Annually", value: "10,000+", icon: <MedicineBoxOutlined />, color: "#722ed1" }
   ];
 
-  const features = [
-    {
-      title: "Smart Image Enhancement",  
-      description: "Automatically sharpen and crop scanned prescriptions for optimal clarity",  
-      icon: <FileTextOutlined className="text-primary" style={{ fontSize: '24px' }} />  
-    },  
-    {
-      title: "Precision Text Segmentation",  
-      description: "AI extracts medication details by isolating text regions from handwritten scripts",  
-      icon: <WarningOutlined className="text-primary" style={{ fontSize: '24px' }} />  
-    },  
-    {
-      title: "Structured Data Output",  
-      description: "Converts segmented text into organized digital records for error-free processing",  
-      icon: <MedicineBoxOutlined className="text-primary" style={{ fontSize: '24px' }} />  
-    }
-  ];
 
   return (
     <div className="bg-light min-vh-100">
+      {/* Add the Google Fonts link for Caveat */}
+      <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" />
+      
       {/* Modern Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
         <div className="container-fluid">
-          <a className="navbar-brand fw-bold fs-5 text-primary d-flex align-items-center" href="/">
+          <a className="navbar-brand fw-bold fs-5 text-primary d-flex align-items-center" href="/" style={caveatStyle}>
             <span className="text-white rounded-circle me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
               <img src={logo} alt="" width={59} />
             </span>
@@ -108,7 +135,7 @@ const Index = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 fw-medium">
+          <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3 fw-medium" style={caveatStyle}>
             AI-Powered Healthcare Solution
           </span>
         </motion.div>
@@ -118,10 +145,20 @@ const Index = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          style={caveatStyle}
         >
           Zero Errors Prescription <br /> with <span className="text-primary">AI Technology</span>
         </motion.h1>
+                    <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
 
+                    <img src={headerImage} alt="" className='w-50' />
+
+            </motion.div>
         <motion.p
           className="lead mb-4 text-muted"
           style={{ maxWidth: '700px' }}
@@ -156,86 +193,10 @@ const Index = () => {
           </Button>
         </motion.div>
       </div>
-
-      {/* Auto-Sliding Carousel */}
-  {/* Prescription Card Grid - 3 Cards Displayed */}
-      <div className="container-fluid bg-white py-5 p-5">
-        <div className="container">
-          <h2 className="text-center mb-5 fw-bold">AI-Extracted Prescription Data</h2>
-          
-          <Row gutter={[24, 24]} justify="center">
-            {prescriptionCards.map((card, index) => (
-              <Col xs={24} md={8} key={index}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card
-                    hoverable
-                    cover={
-                      <div style={{ height: '200px', overflow: 'hidden' }}>
-                        <img 
-                          alt="prescription" 
-                          src={card.image} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      </div>
-                    }
-                    className="shadow-sm "
-                  >
-                    <Meta
-                      title={card.patient}
-                      description={
-                        <>
-                          <div className="d-flex align-items-center mb-2">
-                            <CalendarOutlined className="me-2" />
-                            <span>Date: {card.date}</span>
-                          </div>
-                          
-                          <div className="mb-3">
-                            <h5 className="fw-bold mb-1">Medications:</h5>
-                            {card.medications.map((med, i) => (
-                              <Card.Grid 
-                                key={i} 
-                                style={{
-                                  padding:"10px", 
-                                  width: '100%', 
-                                  boxShadow: 'none',
-                                  border: '1px solid #f0f0f0'
-                                }}
-                              >
-                                <div className="d-flex justify-content-between">
-                                  <Tag icon={<MedicineBoxOutlined />} color="blue">
-                                    {med.name}
-                                  </Tag>
-                                  <span>
-                                    <ClockCircleOutlined className="" />
-                                    {med.frequency}
-                                  </span>
-                                </div>
-                                <div className="">
-                                  <span className="text-muted">Dosage: {med.dosage}</span>
-                                  <span className="text-muted float-end">Duration: {med.duration}</span>
-                                </div>
-                              </Card.Grid>
-                            ))}
-                          </div>
-                        </>
-                      }
-                    />
-                  </Card>
-                </motion.div>
-              </Col>
-            ))}
-          </Row>
-        </div>
-      </div>
-
       {/* Statistics Section */}
       <div className="container-fluid bg-white py-5">
         <div className="container">
-          <h2 className="text-center mb-5 fw-bold">The Alarming Reality of Handwritten Prescriptions</h2>
+          <h2 className="text-center mb-5 fw-bold" style={caveatStyle}>The Alarming Reality of Handwritten Prescriptions</h2>
           
           <Row gutter={[24, 24]} className="mb-5">
             {stats.map((stat, index) => (
@@ -247,7 +208,7 @@ const Index = () => {
                 >
                   <Card className="border-0 shadow-sm h-100">
                     <Statistic
-                      title={stat.title}
+                      title={<span >{stat.title}</span>}
                       value={stat.value}
                       prefix={<span style={{ color: stat.color }}>{stat.icon}</span>}
                       valueStyle={{ color: stat.color, fontWeight: 'bold' }}
@@ -271,38 +232,116 @@ const Index = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Features Section */}
-      <div className="container py-5 my-5">
-        <h2 className="text-center mb-5 fw-bold">Key Features</h2>
-        
-        <Row gutter={[24, 24]}>
-          {features.map((feature, index) => (
-            <Col xs={24} md={8} key={index}>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <Card className="h-100 border-0 shadow-sm">
-                  <div className="d-flex flex-column align-items-center text-center p-3">
-                    <div className="bg-primary bg-opacity-10 p-3 rounded-circle mb-3">
-                      {feature.icon}
+      {/* Auto-Sliding Carousel */}
+      <div className="container-fluid bg-white py-5 p-5">
+        <div className="container">
+          <h2 className="text-center mb-5 fw-bold" style={caveatStyle}>AI-Extracted Prescription Data</h2>
+          
+          <Row gutter={[24, 24]} justify="center">
+            {prescriptionCards.map((card, index) => (
+              <Col xs={24} md={8} key={index}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card
+                    hoverable
+                    cover={
+                      <div style={{  overflow: 'hidden' }}>
+                    <div className="slider-container">
+                      <ReactCompareImage 
+                        leftImage={card.imageAfterAnalyze}
+                        rightImage={card.imageBeforeAnalyze}
+                        sliderLineWidth={2}
+                        sliderLineColor="#fff"
+                        hover={true}
+                      />
                     </div>
-                    <h4 className="fw-bold mb-2">{feature.title}</h4>
-                    <p className="text-muted">{feature.description}</p>
-                  </div>
-                </Card>
-              </motion.div>
-            </Col>
-          ))}
-        </Row>
+                      </div>
+                    }
+                    className="shadow-sm "
+                  >
+                    <Meta
+                      title={<span >{card.patient}</span>}
+                      description={
+                        <>
+                          <div className="d-flex align-items-center mb-2">
+                            <CalendarOutlined className="me-2" />
+                            <span>Date: {card.date}</span>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <h5 className="fw-bold mb-1" >Medications:</h5>
+                            {card.medications.map((med, i) => (
+                              <Card.Grid 
+                                key={i} 
+                                style={{
+                                  padding:"10px", 
+                                  boxShadow: 'none',
+                                }}
+                              >
+                                <div className="d-flex justify-content-between">
+                                  <Tag icon={<MedicineBoxOutlined />} color="blue">
+                                    {med.name}
+                                  </Tag>
+                                </div>
+                              </Card.Grid>
+                            ))}
+                          </div>
+                        </>
+                      }
+                    />
+                  </Card>
+                </motion.div>
+              </Col>
+            ))}
+          </Row>
+        </div>
       </div>
+
+
+
+<div className="container py-5 my-5">
+  <h2 className="text-center mb-5 fw-bold" style={caveatStyle}>Key Features</h2>
+  
+  <Row gutter={[24, 24]}>
+    {features.map((feature, index) => (
+      <Col xs={24} md={8} key={index}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1, duration: 0.5 }}
+          viewport={{ once: true }}
+        >
+          <Card className="h-100 border-0 shadow-sm">
+            <div className="d-flex flex-column align-items-center text-center p-4">
+              <div className="mb-4" style={{ width: '100px', height: '100px' }}>
+                <img 
+                  src={feature.image} 
+                  alt={feature.title}
+                  className="img-fluid rounded-circle"
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover',
+                    border: '3px solid rgba(24, 144, 255, 0.1)'
+                  }}
+                />
+              </div>
+              <h4 className="fw-bold mb-3" style={caveatStyle}>{feature.title}</h4>
+              <p className="text-muted mb-0">{feature.description}</p>
+            </div>
+          </Card>
+        </motion.div>
+      </Col>
+    ))}
+  </Row>
+</div>
 
       {/* How It Works Section */}
       <div className="container py-5 my-5">
-        <h2 className="text-center mb-5 fw-bold">How Pharmacology Works</h2>
+        <h2 className="text-center mb-5 fw-bold" style={caveatStyle}>How Pharmacology Works</h2>
         
         <Row gutter={[24, 24]} className="align-items-center">
           <Col xs={24} md={12}>
@@ -314,8 +353,8 @@ const Index = () => {
             >
               <div className="bg-light p-4 rounded-3">
                 <div className="ratio ratio-16x9">
-                  <div className="d-flex align-items-center justify-content-center bg-white rounded-2">
-                    <img src={img1} alt="" className='w-75' />
+                  <div className="d-flex align-items-center justify-content-center  rounded-2">
+                    <img src={scanImage} alt="" className='w-75' />
                   </div>
                 </div>
               </div>
@@ -336,7 +375,7 @@ const Index = () => {
                     </div>
                   </div>
                   <div>
-                    <h5 className="fw-bold">Image preprocessing filter sharpening and cropping</h5>
+                    <h5 className="fw-bold" >Image preprocessing filter sharpening and cropping</h5>
                     <p className="text-muted">Enhance image clarity and remove unnecessary regions through sharpening filters and precise cropping.</p>
                   </div>
                 </div>
@@ -348,7 +387,7 @@ const Index = () => {
                     </div>
                   </div>
                   <div>
-                    <h5 className="fw-bold">Image segmentation and cropping</h5>
+                    <h5 className="fw-bold" >Image segmentation and cropping</h5>
                     <p className="text-muted">Isolate and extract specific regions of interest by segmenting the image and cropping relevant sections.</p>
                   </div>
                 </div>
@@ -360,7 +399,7 @@ const Index = () => {
                     </div>
                   </div>
                   <div>
-                    <h5 className="fw-bold">Text recognition</h5>
+                    <h5 className="fw-bold" >Text recognition</h5>
                     <p className="text-muted">Detect and convert text within the image into machine-readable characters using OCR (Optical Character Recognition).</p>
                   </div>
                 </div>
@@ -379,6 +418,7 @@ const Index = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
+            style={caveatStyle}
           >
             Ready to Eliminate Prescription Errors?
           </motion.h2>

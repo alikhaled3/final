@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002FApp\u002Fdoc_ai","\u002FApp\u002Fforms","\u002FApp\u002Fforms\u002Fscan","\u002FApp\u002Fforms\u002Ftemplate","\u002FApp\u002Fmath","\u002FApp\u002Fnotes","\u002FApp\u002Focr","\u002FApp\u002FsearchablePdf","\u002FApp\u002Ftables"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()

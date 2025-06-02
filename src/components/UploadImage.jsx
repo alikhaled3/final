@@ -735,8 +735,8 @@ return (
             <img
               src={currentImage}
               style={{ 
-                maxHeight: "55%", 
-                maxWidth: "55%", 
+                maxHeight: "40%", 
+                maxWidth: "40%", 
                 objectFit: "contain",
                 borderRadius: "4px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
@@ -817,7 +817,21 @@ return (
 
           {fileList.length > 0 && (
             <>
+
+
               <Col>
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  size="large"
+                  onClick={handleProcessImage}
+                  loading={isLoading}
+                  className="process-button"
+                >
+                  Analyze
+                </Button>
+              </Col>
+                            <Col>
                 <Dropdown
                   overlay={filterMenu}
                   trigger={["click"]}
@@ -827,7 +841,7 @@ return (
                     icon={<PictureOutlined />}
                     size="large"
                   >
-                    Filters
+                   Apply Filters
                   </Button>
                 </Dropdown>
               </Col>
@@ -843,19 +857,6 @@ return (
                   </Button>
                 </Col>
               )}
-
-              <Col>
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  size="large"
-                  onClick={handleProcessImage}
-                  loading={isLoading}
-                  className="process-button"
-                >
-                  Analyze
-                </Button>
-              </Col>
             </>
           )}
         </Row>
