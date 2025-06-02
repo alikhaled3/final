@@ -27,14 +27,19 @@ import {
   Dropdown,
   Menu,
   Space,
+  Layout,
+  Row,
+  Col,
 } from "antd";
 import ImgCrop from "antd-img-crop";
 import axios from "axios";
 import MedicationExtractor from "./extract-text";
 import useMedicationExtractor from "../hooks/useMedicationExtractor";
 import MedicationItem from "./MedicationItem";
+
 const { Text, Title } = Typography;
 const { Step } = Steps;
+const { Sider, Content } = Layout;
 
 const filterOptions = [
   { key: "none", label: "No Filter", value: "none" },
@@ -66,6 +71,7 @@ const UploadFile = () => {
   const [selectedFilter, setSelectedFilter] = useState("none");
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredImage, setFilteredImage] = useState(null);
+  const [currentImage, setCurrentImage] = useState(null);
 
   const {
     medications,
@@ -173,19 +179,7 @@ const UploadFile = () => {
     const imageUrl = URL.createObjectURL(fileList[0].originFileObj);
     const filteredUrl = await applyFilter(imageUrl, filter);
     setFilteredImage(filteredUrl);
-
-    setMessages((prev) => [
-      ...prev.filter((msg) => msg.type !== "image"),
-      {
-        type: "image",
-        content: filteredUrl,
-        sender: "user",
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+    setCurrentImage(filteredUrl);
 
     URL.revokeObjectURL(imageUrl);
   };
@@ -197,19 +191,7 @@ const UploadFile = () => {
     const imageUrl = URL.createObjectURL(fileList[0].originFileObj);
     const normalizedUrl = await normalizeImage(imageUrl);
     setFilteredImage(null);
-
-    setMessages((prev) => [
-      ...prev.filter((msg) => msg.type !== "image"),
-      {
-        type: "image",
-        content: normalizedUrl,
-        sender: "user",
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+    setCurrentImage(normalizedUrl);
 
     URL.revokeObjectURL(imageUrl);
   };
@@ -288,15 +270,16 @@ const UploadFile = () => {
     const normalizedUrl = await normalizeImage(imageUrl);
     setFilteredImage(null);
     setSelectedFilter("none");
+    setCurrentImage(normalizedUrl);
 
     setMessages((prev) => [
       ...prev.filter(
         (msg) => msg.content !== "Upload a prescription to start analysis"
       ),
       {
-        type: "image",
-        content: normalizedUrl,
-        sender: "user",
+        type: "text",
+        content: "Prescription uploaded. Click 'Analyze' to process.",
+        sender: "system",
         time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -382,18 +365,10 @@ const UploadFile = () => {
       const processedUrl = `data:image/jpeg;base64,${segmented_image}`;
 
       setExtractedText(text);
+      setCurrentImage(processedUrl);
 
       setMessages((prev) => [
         ...prev.filter((msg) => msg.type !== "status"),
-        {
-          type: "processed-image",
-          content: processedUrl,
-          sender: "system",
-          time: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
         {
           type: "extracted-text",
           content: text,
@@ -418,7 +393,6 @@ const UploadFile = () => {
   const renderMedicationItem = (med, index) => {
     const isPlaying = playingAudio === index;
     const isLoadingAudio = audioLoading === index;
-    console.log(med.Audio);
 
     return (
       <Card size="small" className="medication-card">
@@ -486,42 +460,9 @@ const UploadFile = () => {
       </Card>
     );
   };
+
   const renderMessageContent = (message) => {
     switch (message.type) {
-      case "image":
-        return (
-          <div className="prescription-card">
-            <div className="prescription-image-container">
-              <img
-                src={message.content}
-                className="prescription-image"
-                alt="Prescription"
-              />
-            </div>
-            <div className="prescription-label">
-              {selectedFilter !== "none"
-                ? `${
-                    filterOptions.find((f) => f.key === selectedFilter)?.label
-                  } Filter Applied`
-                : "Normalized Prescription"}
-            </div>
-          </div>
-        );
-      case "processed-image":
-        return (
-          <div className="analysis-result">
-            <Text strong className="section-title">
-              Enhanced Analysis
-            </Text>
-            <div className="processed-image-container">
-              <img
-                src={message.content}
-                className="processed-image"
-                alt="Processed prescription"
-              />
-            </div>
-          </div>
-        );
       case "extracted-text":
         return (
           <div className="analysis-result">
@@ -625,13 +566,41 @@ const UploadFile = () => {
   );
 
   return (
-    <div className="prescription-container overflow-y-hidden">
-      <div className="prescription-content">
-        <div className="message-area pt-5 mt-4">
-          {messages.length === 0 ? (
-            <div className="empty-state">
+    <Layout className="prescription-container" style={{ minHeight: "100vh" }}>
+      <Content style={{ padding: "24px", display: "flex", flexDirection: "column" }}>
+        <div style={{ 
+          flex: 1, 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center",
+          backgroundColor: "#f0f2f5",
+          borderRadius: "8px",
+          marginBottom: "16px"
+        }}>
+          {currentImage ? (
+            <div style={{ 
+              maxWidth: "100%", 
+              maxHeight: "70vh", 
+              display: "flex", 
+              justifyContent: "center",
+              alignItems: "center"
+            }}>
+              <img
+                src={currentImage}
+                style={{ 
+                  maxHeight: "55%", 
+                  maxWidth: "55%", 
+                  objectFit: "contain",
+                  borderRadius: "4px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                }}
+                alt="Prescription"
+              />
+            </div>
+          ) : (
+            <div className="empty-state" style={{ textAlign: "center" }}>
               <div className="empty-illustration text-danger iconsize">
-                <MedicineBoxOutlined />
+                <MedicineBoxOutlined style={{ fontSize: "48px" }} />
               </div>
               <Title level={4} className="empty-title">
                 No Prescription Uploaded
@@ -640,41 +609,17 @@ const UploadFile = () => {
                 Upload a prescription image to begin analysis
               </Text>
             </div>
-          ) : (
-            <List
-              dataSource={messages}
-              renderItem={(message, index) => (
-                <List.Item className={`message-item ${message.sender}`}>
-                  <div className="message-content">
-                    <Avatar
-                      icon={
-                        message.sender === "user" ? (
-                          <UserOutlined />
-                        ) : (
-                          <RobotOutlined />
-                        )
-                      }
-                      className="message-avatar"
-                      style={{
-                        backgroundColor:
-                          message.sender === "user" ? "#4a6bdf" : "#7c4dff",
-                      }}
-                    />
-                    <div className="message-bubble">
-                      {renderMessageContent(message)}
-                      <div className="message-time">{message.time}</div>
-                    </div>
-                  </div>
-                </List.Item>
-              )}
-            />
           )}
         </div>
 
-        <div className="control-area">
-          <Divider className="control-divider" />
-          <div className="upload-controls">
-            <Space>
+        <div style={{ 
+          backgroundColor: "#fff", 
+          padding: "16px", 
+          borderRadius: "8px",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.1)"
+        }}>
+          <Row gutter={16} justify="center" align="middle">
+            <Col>
               <ImgCrop
                 rotationSlider
                 beforeCrop={beforeCrop}
@@ -695,63 +640,109 @@ const UploadFile = () => {
                   <Button
                     icon={<UploadOutlined />}
                     size="large"
-                    className="upload-button bg-primary text-white"
+                    className="upload-button"
+                    type="primary"
                   >
-                    {fileList.length > 0
-                      ? "Change Prescription"
-                      : "Upload Prescription"}
+                    {fileList.length > 0 ? "Change" : "Upload"}
                   </Button>
                 </Upload>
               </ImgCrop>
+            </Col>
 
-              {fileList.length > 0 && (
-                <Dropdown
-                  overlay={filterMenu}
-                  trigger={["click"]}
-                  placement="bottomLeft"
-                  visible={showFilterOptions}
-                  onVisibleChange={setShowFilterOptions}
-                >
-                  <Button
-                    icon={<PictureOutlined />}
-                    size="large"
-                    className="filter-button"
+            {fileList.length > 0 && (
+              <>
+                <Col>
+                  <Dropdown
+                    overlay={filterMenu}
+                    trigger={["click"]}
+                    placement="bottomLeft"
                   >
-                    {selectedFilter === "none"
-                      ? "Apply Filter"
-                      : filterOptions.find((f) => f.key === selectedFilter)
-                          ?.label}
+                    <Button
+                      icon={<PictureOutlined />}
+                      size="large"
+                    >
+                      Filters
+                    </Button>
+                  </Dropdown>
+                </Col>
+
+                {selectedFilter !== "none" && (
+                  <Col>
+                    <Button
+                      icon={<CloseOutlined />}
+                      size="large"
+                      onClick={resetFilter}
+                    >
+                      Reset
+                    </Button>
+                  </Col>
+                )}
+
+                <Col>
+                  <Button
+                    type="primary"
+                    icon={<SendOutlined />}
+                    size="large"
+                    onClick={handleProcessImage}
+                    loading={isLoading}
+                    className="process-button"
+                  >
+                    Analyze
                   </Button>
-                </Dropdown>
-              )}
-
-              {selectedFilter !== "none" && (
-                <Button
-                  icon={<CloseOutlined />}
-                  size="large"
-                  onClick={resetFilter}
-                  className="reset-filter-button"
-                >
-                  Reset
-                </Button>
-              )}
-
-              <Button
-                type="primary"
-                icon={<SendOutlined />}
-                size="large"
-                onClick={handleProcessImage}
-                loading={isLoading}
-                disabled={fileList.length === 0}
-                className="process-button"
-              >
-                Analyze
-              </Button>
-            </Space>
-          </div>
+                </Col>
+              </>
+            )}
+          </Row>
         </div>
-      </div>
-    </div>
+      </Content>
+
+      <Sider 
+        width={400} 
+        style={{ 
+          background: "#fff", 
+          padding: "24px",
+          borderLeft: "1px solid #f0f0f0",
+          overflowY: "auto"
+        }}
+      >
+        <Title level={4} style={{ marginBottom: "24px" }}>Analysis Results</Title>
+        
+        {messages.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "24px" }}>
+            <Text type="secondary">Results will appear here after analysis</Text>
+          </div>
+        ) : (
+          <List
+            dataSource={messages}
+            renderItem={(message, index) => (
+              <List.Item style={{ padding: "12px 0" }}>
+                <div style={{ width: "100%" }}>
+                  <div style={{ 
+                    display: "flex", 
+                    alignItems: "flex-start",
+                    marginBottom: "8px"
+                  }}>
+                    <Avatar
+                      icon={message.sender === "user" ? <UserOutlined /> : <RobotOutlined />}
+                      style={{
+                        backgroundColor: message.sender === "user" ? "#4a6bdf" : "#7c4dff",
+                        marginRight: "12px"
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      {renderMessageContent(message)}
+                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                        {message.time}
+                      </Text>
+                    </div>
+                  </div>
+                </div>
+              </List.Item>
+            )}
+          />
+        )}
+      </Sider>
+    </Layout>
   );
 };
 

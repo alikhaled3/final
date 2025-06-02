@@ -67,7 +67,7 @@ font-size: 200px
     padding: 0 16px;
     background-color: white;
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
     margin-bottom: 16px;
   }
   
@@ -261,11 +261,7 @@ font-size: 200px
     margin: 0 0 16px 0 !important;
   }
   
-  .upload-controls {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
+
   
   .upload-button {
     flex: 1;
@@ -655,7 +651,7 @@ font-size: 200px
 
 .upload-controls {
   display: flex;
-  justify-content: center;
+
   gap: 12px;
   margin-top: 16px;
 }

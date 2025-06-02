@@ -68,70 +68,7 @@ function Home() {
 
           </motion.div>
 
-          <motion.div
-            className="row mt-5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            <div className="col-md-4 mb-4">
-              <Card className="border-0 shadow-sm h-100">
-                <div className="p-3">
-                  <div
-                    className="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mb-3"
-                    style={{ width: "50px", height: "50px" }}
-                  >
-                    <FileTextOutlined style={{ fontSize: "20px" }} />
-                  </div>
-                  <h5 className="fw-bold">Recent Files</h5>
-                  <p className="text-muted">
-                    Access your previously scanned prescriptions
-                  </p>
-                  <Button type="text" className="ps-0">
-                    View all →
-                  </Button>
-                </div>
-              </Card>
-            </div>
-            <div className="col-md-4 mb-4">
-              <Card className="border-0 shadow-sm h-100">
-                <div className="p-3">
-                  <div
-                    className="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mb-3"
-                    style={{ width: "50px", height: "50px" }}
-                  >
-                    <FileTextOutlined style={{ fontSize: "20px" }} />
-                  </div>
-                  <h5 className="fw-bold">Tutorial</h5>
-                  <p className="text-muted">
-                    Learn how to get the best results from your scans
-                  </p>
-                  <Button type="text" className="ps-0">
-                    Watch tutorial →
-                  </Button>
-                </div>
-              </Card>
-            </div>
-            <div className="col-md-4 mb-4">
-              <Card className="border-0 shadow-sm h-100">
-                <div className="p-3">
-                  <div
-                    className="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mb-3"
-                    style={{ width: "50px", height: "50px" }}
-                  >
-                    <FileTextOutlined style={{ fontSize: "20px" }} />
-                  </div>
-                  <h5 className="fw-bold">Support</h5>
-                  <p className="text-muted">
-                    Need help? Contact our support team
-                  </p>
-                  <Button type="text" className="ps-0">
-                    Contact us →
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          </motion.div>
+
         </motion.div>
       </motion.div>
     </div>
