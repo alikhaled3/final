@@ -46,7 +46,7 @@ function Home() {
                   >
                     <span
                       className="text-white rounded-circle me-2 d-inline-flex align-items-center justify-content-center"
-                      style={{ width: "36px", height: "36px" }}
+                      style={{ width: "25px", height: "25px" }}
                     >
                       <div className="">
                         <img src={logo} alt="" width={59} />

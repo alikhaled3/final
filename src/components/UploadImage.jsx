@@ -10,6 +10,7 @@ import {
   PauseOutlined,
   PictureOutlined,
   CloseOutlined,
+  CloudUploadOutlined
 } from "@ant-design/icons";
 import {
   Button,
@@ -48,6 +49,8 @@ const filterOptions = [
   { key: "sepia", label: "Sepia", value: "sepia" },
   { key: "contrast", label: "High Contrast", value: "contrast" },
   { key: "brightness", label: "Increase Brightness", value: "brightness" },
+  { key: 'sobel', label: 'Sobel Edge Detection' },
+  { key: 'laplacian', label: 'Laplacian Edge Detection' },
 ];
 
 const UploadFile = () => {
@@ -112,7 +115,7 @@ const UploadFile = () => {
     }
   });
 
-  const applyFilter = (imageUrl, filterType) => {
+const applyFilter = (imageUrl, filterType) => {
     return new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = "Anonymous";
@@ -126,41 +129,146 @@ const UploadFile = () => {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
 
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-
-          switch (filterType) {
-            case "grayscale":
-              const avg = 0.299 * r + 0.587 * g + 0.114 * b;
-              data[i] = data[i + 1] = data[i + 2] = avg;
-              break;
-            case "invert":
-              data[i] = 255 - r;
-              data[i + 1] = 255 - g;
-              data[i + 2] = 255 - b;
-              break;
-            case "sepia":
-              data[i] = Math.min(255, r * 0.393 + g * 0.769 + b * 0.189);
-              data[i + 1] = Math.min(255, r * 0.349 + g * 0.686 + b * 0.168);
-              data[i + 2] = Math.min(255, r * 0.272 + g * 0.534 + b * 0.131);
-              break;
-            case "contrast":
-              const factor = 2.5;
-              data[i] = 128 + factor * (r - 128);
-              data[i + 1] = 128 + factor * (g - 128);
-              data[i + 2] = 128 + factor * (b - 128);
-              break;
-            case "brightness":
-              const brightness = 50;
-              data[i] = r + brightness;
-              data[i + 1] = g + brightness;
-              data[i + 2] = b + brightness;
-              break;
-            default:
-              break;
+        // Helper function to get pixel value at (x,y)
+        function getPixel(x, y) {
+          if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) {
+            return [0, 0, 0]; // Return black for out of bounds
           }
+          const offset = (y * canvas.width + x) * 4;
+          return [
+            imageData.data[offset],
+            imageData.data[offset + 1],
+            imageData.data[offset + 2]
+          ];
+        }
+
+        // Convert to grayscale first for edge detection
+        if (filterType === "sobel" || filterType === "laplacian") {
+          for (let i = 0; i < data.length; i += 4) {
+            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            data[i] = data[i + 1] = data[i + 2] = gray;
+          }
+          ctx.putImageData(imageData, 0, 0);
+        }
+
+        switch (filterType) {
+          case "grayscale":
+            for (let i = 0; i < data.length; i += 4) {
+              const avg = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+              data[i] = data[i + 1] = data[i + 2] = avg;
+            }
+            break;
+          case "invert":
+            for (let i = 0; i < data.length; i += 4) {
+              data[i] = 255 - data[i];
+              data[i + 1] = 255 - data[i + 1];
+              data[i + 2] = 255 - data[i + 2];
+            }
+            break;
+          case "sepia":
+            for (let i = 0; i < data.length; i += 4) {
+              data[i] = Math.min(255, data[i] * 0.393 + data[i + 1] * 0.769 + data[i + 2] * 0.189);
+              data[i + 1] = Math.min(255, data[i] * 0.349 + data[i + 1] * 0.686 + data[i + 2] * 0.168);
+              data[i + 2] = Math.min(255, data[i] * 0.272 + data[i + 1] * 0.534 + data[i + 2] * 0.131);
+            }
+            break;
+          case "contrast":
+            const contrastFactor = 2.5;
+            for (let i = 0; i < data.length; i += 4) {
+              data[i] = 128 + contrastFactor * (data[i] - 128);
+              data[i + 1] = 128 + contrastFactor * (data[i + 1] - 128);
+              data[i + 2] = 128 + contrastFactor * (data[i + 2] - 128);
+            }
+            break;
+          case "brightness":
+            const brightness = 50;
+            for (let i = 0; i < data.length; i += 4) {
+              data[i] = Math.min(255, data[i] + brightness);
+              data[i + 1] = Math.min(255, data[i + 1] + brightness);
+              data[i + 2] = Math.min(255, data[i + 2] + brightness);
+            }
+            break;
+          case "sobel":
+            const sobelData = new Uint8ClampedArray(data.length);
+            
+            // Sobel kernels
+            const sobelX = [
+              [-1, 0, 1],
+              [-2, 0, 2],
+              [-1, 0, 1]
+            ];
+            
+            const sobelY = [
+              [-1, -2, -1],
+              [0, 0, 0],
+              [1, 2, 1]
+            ];
+            
+            for (let y = 0; y < canvas.height; y++) {
+              for (let x = 0; x < canvas.width; x++) {
+                let pixelX = 0;
+                let pixelY = 0;
+                
+                // Apply Sobel kernels
+                for (let ky = -1; ky <= 1; ky++) {
+                  for (let kx = -1; kx <= 1; kx++) {
+                    const pixel = getPixel(x + kx, y + ky);
+                    const gray = pixel[0];
+                    
+                    pixelX += gray * sobelX[ky + 1][kx + 1];
+                    pixelY += gray * sobelY[ky + 1][kx + 1];
+                  }
+                }
+                
+                const magnitude = Math.min(255, Math.sqrt(pixelX * pixelX + pixelY * pixelY));
+                const offset = (y * canvas.width + x) * 4;
+                sobelData[offset] = sobelData[offset + 1] = sobelData[offset + 2] = magnitude;
+                sobelData[offset + 3] = 255; // Alpha channel
+              }
+            }
+            
+            // Copy the result back to the original data
+            for (let i = 0; i < data.length; i++) {
+              data[i] = sobelData[i];
+            }
+            break;
+          case "laplacian":
+            const laplacianData = new Uint8ClampedArray(data.length);
+            
+            // Laplacian kernel
+            const laplacianKernel = [
+              [0, 1, 0],
+              [1, -4, 1],
+              [0, 1, 0]
+            ];
+            
+            for (let y = 0; y < canvas.height; y++) {
+              for (let x = 0; x < canvas.width; x++) {
+                let sum = 0;
+                
+                // Apply Laplacian kernel
+                for (let ky = -1; ky <= 1; ky++) {
+                  for (let kx = -1; kx <= 1; kx++) {
+                    const pixel = getPixel(x + kx, y + ky);
+                    const gray = pixel[0];
+                    sum += gray * laplacianKernel[ky + 1][kx + 1];
+                  }
+                }
+                
+                const magnitude = Math.min(255, Math.abs(sum));
+                const offset = (y * canvas.width + x) * 4;
+                laplacianData[offset] = laplacianData[offset + 1] = laplacianData[offset + 2] = magnitude;
+                laplacianData[offset + 3] = 255; // Alpha channel
+              }
+            }
+            
+            // Copy the result back to the original data
+            for (let i = 0; i < data.length; i++) {
+              data[i] = laplacianData[i];
+            }
+            break;
+          default:
+            break;
         }
 
         ctx.putImageData(imageData, 0, 0);
@@ -565,185 +673,243 @@ const UploadFile = () => {
     />
   );
 
-  return (
-    <Layout className="prescription-container" style={{ minHeight: "100vh" }}>
-      <Content style={{ padding: "24px", display: "flex", flexDirection: "column" }}>
-        <div style={{ 
+return (
+  <Layout className="prescription-container" style={{ minHeight: "100vh" }}>
+    <Content style={{ padding: "24px", display: "flex", flexDirection: "column" }}>
+      <div 
+        style={{ 
           flex: 1, 
           display: "flex", 
           justifyContent: "center", 
           alignItems: "center",
           backgroundColor: "#f0f2f5",
           borderRadius: "8px",
-          marginBottom: "16px"
-        }}>
-          {currentImage ? (
-            <div style={{ 
-              maxWidth: "100%", 
-              maxHeight: "70vh", 
-              display: "flex", 
-              justifyContent: "center",
-              alignItems: "center"
-            }}>
-              <img
-                src={currentImage}
-                style={{ 
-                  maxHeight: "55%", 
-                  maxWidth: "55%", 
-                  objectFit: "contain",
-                  borderRadius: "4px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-                }}
-                alt="Prescription"
-              />
-            </div>
-          ) : (
-            <div className="empty-state" style={{ textAlign: "center" }}>
-              <div className="empty-illustration text-danger iconsize">
-                <MedicineBoxOutlined style={{ fontSize: "48px" }} />
-              </div>
-              <Title level={4} className="empty-title">
-                No Prescription Uploaded
-              </Title>
-              <Text type="secondary" className="empty-description">
-                Upload a prescription image to begin analysis
-              </Text>
-            </div>
-          )}
-        </div>
-
-        <div style={{ 
-          backgroundColor: "#fff", 
-          padding: "16px", 
-          borderRadius: "8px",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.1)"
-        }}>
-          <Row gutter={16} justify="center" align="middle">
-            <Col>
-              <ImgCrop
-                rotationSlider
-                beforeCrop={beforeCrop}
-                onModalOk={onCrop}
-                minZoom={minZoom}
-                modalTitle="Crop Prescription"
-                modalOk="Confirm"
-                modalCancel="Cancel"
-                aspect={3 / 4}
-              >
-                <Upload
-                  fileList={fileList}
-                  onChange={onUploadChange}
-                  accept="image/*"
-                  maxCount={1}
-                  showUploadList={false}
-                >
-                  <Button
-                    icon={<UploadOutlined />}
-                    size="large"
-                    className="upload-button"
-                    type="primary"
-                  >
-                    {fileList.length > 0 ? "Change" : "Upload"}
-                  </Button>
-                </Upload>
-              </ImgCrop>
-            </Col>
-
-            {fileList.length > 0 && (
-              <>
-                <Col>
-                  <Dropdown
-                    overlay={filterMenu}
-                    trigger={["click"]}
-                    placement="bottomLeft"
-                  >
-                    <Button
-                      icon={<PictureOutlined />}
-                      size="large"
-                    >
-                      Filters
-                    </Button>
-                  </Dropdown>
-                </Col>
-
-                {selectedFilter !== "none" && (
-                  <Col>
-                    <Button
-                      icon={<CloseOutlined />}
-                      size="large"
-                      onClick={resetFilter}
-                    >
-                      Reset
-                    </Button>
-                  </Col>
-                )}
-
-                <Col>
-                  <Button
-                    type="primary"
-                    icon={<SendOutlined />}
-                    size="large"
-                    onClick={handleProcessImage}
-                    loading={isLoading}
-                    className="process-button"
-                  >
-                    Analyze
-                  </Button>
-                </Col>
-              </>
-            )}
-          </Row>
-        </div>
-      </Content>
-
-      <Sider 
-        width={400} 
-        style={{ 
-          background: "#fff", 
-          padding: "24px",
-          borderLeft: "1px solid #f0f0f0",
-          overflowY: "auto"
+          marginBottom: "16px",
+          border: "2px dashed #d9d9d9",
+          position: "relative"
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.currentTarget.style.borderColor = "#1890ff";
+          e.currentTarget.style.backgroundColor = "#e6f7ff";
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.currentTarget.style.borderColor = "#d9d9d9";
+          e.currentTarget.style.backgroundColor = "#f0f2f5";
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.currentTarget.style.borderColor = "#d9d9d9";
+          e.currentTarget.style.backgroundColor = "#f0f2f5";
+          
+          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if (file.type.match('image.*')) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                setCurrentImage(event.target.result);
+                setFileList([{
+                  uid: '-1',
+                  name: file.name,
+                  status: 'done',
+                  url: event.target.result,
+                  originFileObj: file
+                }]);
+                // Auto-process the image after drop
+                handleProcessImage();
+              };
+              reader.readAsDataURL(file);
+            }
+          }
         }}
       >
-        <Title level={4} style={{ marginBottom: "24px" }}>Analysis Results</Title>
-        
-        {messages.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "24px" }}>
-            <Text type="secondary">Results will appear here after analysis</Text>
+        {currentImage ? (
+          <div style={{ 
+            maxWidth: "100%", 
+            maxHeight: "70vh", 
+            display: "flex", 
+            justifyContent: "center",
+            alignItems: "center"
+          }}>
+            <img
+              src={currentImage}
+              style={{ 
+                maxHeight: "55%", 
+                maxWidth: "55%", 
+                objectFit: "contain",
+                borderRadius: "4px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+              }}
+              alt="Prescription"
+            />
           </div>
         ) : (
-          <List
-            dataSource={messages}
-            renderItem={(message, index) => (
-              <List.Item style={{ padding: "12px 0" }}>
-                <div style={{ width: "100%" }}>
-                  <div style={{ 
-                    display: "flex", 
-                    alignItems: "flex-start",
-                    marginBottom: "8px"
-                  }}>
-                    <Avatar
-                      icon={message.sender === "user" ? <UserOutlined /> : <RobotOutlined />}
-                      style={{
-                        backgroundColor: message.sender === "user" ? "#4a6bdf" : "#7c4dff",
-                        marginRight: "12px"
-                      }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      {renderMessageContent(message)}
-                      <Text type="secondary" style={{ fontSize: "12px" }}>
-                        {message.time}
-                      </Text>
-                    </div>
+          <div className="empty-state" style={{ textAlign: "center" }}>
+            <div className="empty-illustration text-danger iconsize">
+              <CloudUploadOutlined style={{ fontSize: "48px" }}/>
+
+            </div>
+            <Title level={4} className="empty-title">
+              No Prescription Uploaded
+            </Title>
+            <Text type="secondary" className="empty-description">
+              Drag and drop an image or click upload to begin analysis
+            </Text>
+          </div>
+        )}
+      </div>
+
+      <div style={{ 
+        backgroundColor: "#fff", 
+        padding: "16px", 
+        borderRadius: "8px",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.1)"
+      }}>
+        <Row gutter={16} justify="center" align="middle">
+          <Col>
+            <ImgCrop
+              rotationSlider
+              beforeCrop={beforeCrop}
+              onModalOk={onCrop}
+              minZoom={minZoom}
+              modalTitle="Crop Prescription"
+              modalOk="Confirm"
+              modalCancel="Cancel"
+              aspect={3 / 4}
+            >
+              <Upload
+                fileList={fileList}
+                onChange={onUploadChange}
+                accept="image/*"
+                maxCount={1}
+                showUploadList={false}
+                beforeUpload={(file) => {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    setCurrentImage(e.target.result);
+                    // Auto-process the image after upload
+                    setFileList([{
+                      uid: '-1',
+                      name: file.name,
+                      status: 'done',
+                      url: e.target.result,
+                      originFileObj: file
+                    }], () => {
+                      handleProcessImage();
+                    });
+                  };
+                  reader.readAsDataURL(file);
+                  return false; // Prevent default upload behavior
+                }}
+              >
+                <Button
+                  icon={<UploadOutlined />}
+                  size="large"
+                  className="upload-button"
+                  type="primary"
+                >
+                  {fileList.length > 0 ? "Change" : "Upload"}
+                </Button>
+              </Upload>
+            </ImgCrop>
+          </Col>
+
+          {fileList.length > 0 && (
+            <>
+              <Col>
+                <Dropdown
+                  overlay={filterMenu}
+                  trigger={["click"]}
+                  placement="bottomLeft"
+                >
+                  <Button
+                    icon={<PictureOutlined />}
+                    size="large"
+                  >
+                    Filters
+                  </Button>
+                </Dropdown>
+              </Col>
+
+              {selectedFilter !== "none" && (
+                <Col>
+                  <Button
+                    icon={<CloseOutlined />}
+                    size="large"
+                    onClick={resetFilter}
+                  >
+                    Reset
+                  </Button>
+                </Col>
+              )}
+
+              <Col>
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  size="large"
+                  onClick={handleProcessImage}
+                  loading={isLoading}
+                  className="process-button"
+                >
+                  Analyze
+                </Button>
+              </Col>
+            </>
+          )}
+        </Row>
+      </div>
+    </Content>
+
+    <Sider 
+      width={400} 
+      style={{ 
+        background: "#fff", 
+        padding: "24px",
+        borderLeft: "1px solid #f0f0f0",
+        overflowY: "auto"
+      }}
+    >
+      <Title level={4} style={{ marginBottom: "24px" }}>Analysis Results</Title>
+      
+      {messages.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "24px" }}>
+          <Text type="secondary">Results will appear here after analysis</Text>
+        </div>
+      ) : (
+        <List
+          dataSource={messages}
+          renderItem={(message, index) => (
+            <List.Item style={{ padding: "12px 0" }}>
+              <div style={{ width: "100%" }}>
+                <div style={{ 
+                  display: "flex", 
+                  alignItems: "flex-start",
+                  marginBottom: "8px"
+                }}>
+                  <Avatar
+                    icon={message.sender === "user" ? <UserOutlined /> : <RobotOutlined />}
+                    style={{
+                      backgroundColor: message.sender === "user" ? "#4a6bdf" : "#7c4dff",
+                      marginRight: "12px"
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    {renderMessageContent(message)}
+                    <Text type="secondary" style={{ fontSize: "12px" }}>
+                      {message.time}
+                    </Text>
                   </div>
                 </div>
-              </List.Item>
-            )}
-          />
-        )}
-      </Sider>
-    </Layout>
-  );
+              </div>
+            </List.Item>
+          )}
+        />
+      )}
+    </Sider>
+  </Layout>
+);
 };
 
 export default UploadFile;
