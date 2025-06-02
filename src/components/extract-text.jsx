@@ -60,7 +60,8 @@ const MedicationExtractor = ({ extractedText, onMedicationsExtracted }) => {
       audioRef.current.pause();
       audioRef.current = null;
     }
-
+    console.log(audioUrl);
+    
     // Create new audio element
     const audio = new Audio(`http://localhost:5000${audioUrl}`);
     audioRef.current = audio;

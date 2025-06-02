@@ -170,6 +170,7 @@ def process_segmentation():
 
 @app.route('/process/extract_text', methods=['POST'])
 def extract_text():
+    print(request.files)
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
     img = Image.open(request.files['image'].stream)
