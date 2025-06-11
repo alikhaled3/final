@@ -43,7 +43,7 @@ const Sidebar = () => {
         style={{ cursor: 'pointer' }}
         >
         <MenuOutlined style={{ fontSize: '20px', color: '#fff' }} />
-        {open && <span className="ms-2">Toggle</span>}
+        {open && <span className="ms-2"></span>}
       </div>
 
       {/* Menu Items */}

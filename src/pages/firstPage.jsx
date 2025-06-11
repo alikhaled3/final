@@ -232,74 +232,59 @@ const Index = () => {
           </motion.div>
         </div>
       </div>
-      {/* Auto-Sliding Carousel */}
-      <div className="container-fluid bg-white py-5 p-5">
-        <div className="container">
-          <h2 className="text-center mb-5 fw-bold" style={caveatStyle}>AI-Extracted Prescription Data</h2>
-          
-          <Row gutter={[24, 24]} justify="center">
-            {prescriptionCards.map((card, index) => (
-              <Col xs={24} md={8} key={index}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card
-                    hoverable
-                    cover={
-                      <div style={{  overflow: 'hidden' }}>
-                    <div className="slider-container">
-                      <ReactCompareImage 
-                        leftImage={card.imageAfterAnalyze}
-                        rightImage={card.imageBeforeAnalyze}
-                        sliderLineWidth={2}
-                        sliderLineColor="#fff"
-                        hover={true}
-                      />
-                    </div>
-                      </div>
-                    }
-                    className="shadow-sm "
-                  >
-                    <Meta
-                      title={<span >{card.patient}</span>}
-                      description={
-                        <>
-                          <div className="d-flex align-items-center mb-2">
-                            <CalendarOutlined className="me-2" />
-                            <span>Date: {card.date}</span>
-                          </div>
-                          
-                          <div className="mb-3">
-                            <h5 className="fw-bold mb-1" >Medications:</h5>
-                            {card.medications.map((med, i) => (
-                              <Card.Grid 
-                                key={i} 
-                                style={{
-                                  padding:"10px", 
-                                  boxShadow: 'none',
-                                }}
-                              >
-                                <div className="d-flex justify-content-between">
-                                  <Tag icon={<MedicineBoxOutlined />} color="blue">
-                                    {med.name}
-                                  </Tag>
-                                </div>
-                              </Card.Grid>
-                            ))}
-                          </div>
-                        </>
-                      }
-                    />
-                  </Card>
-                </motion.div>
-              </Col>
-            ))}
-          </Row>
+
+<div className="container">
+  <div className="row">
+    <h3 className="text-center mb-4">OCR Demonstration and Result Analysis</h3>
+
+    {/* Left: Image Comparison */}
+    <div className="col-md-6">
+      <div className="w-75 ms-5 p-5">
+        <ReactCompareImage
+          leftImage={prescription}
+          rightImage={prescription2}
+          sliderLineWidth={2}
+          sliderLineColor="#fff"
+          hover={true}
+          style={{ objectFit: "" }}
+        />
+      </div>
+    </div>
+
+    {/* Right: OCR Description & Extracted Information */}
+    <div className="col-md-6">
+      <div className="ps-md-4 mt-5">
+        {/* OCR Result */}
+        <div className="border-top pt-4 mt-4">
+          <h5 className="fw-bold mb-3">Extracted Text Output</h5>
+          <p className="fst-italic">
+            "10 . tat . refenolvadex . 1x2 . fall . y Kro can trental sr 400 1x2 y thiotacid . cup 600 &quot;m. jee ."
+          </p>
+
+          <h6 className="fw-bold mt-4">Identified Medications & Dosages</h6>
+          <p className="text-muted">
+            The Optical Character Recognition (OCR) process successfully extracted several key medication names along with their associated dosages from the input prescription image. Below is a summary of the structured output:
+          </p>
+          <ul className="list-unstyled">
+            <li className="mb-2">
+              <strong className="text-dark">Nolvadex</strong> — Detected as part of the handwritten content, commonly used in hormone therapy treatments.
+            </li>
+            <li className="mb-2">
+              <strong className="text-dark">Trental</strong> — Identified with a prescribed dosage of <span className="text-success">400 mg</span>. It is often used to improve blood flow in patients with circulation problems.
+            </li>
+            <li>
+              <strong className="text-dark">Thiotacid</strong> — Extracted with a dosage of <span className="text-success">600 mg</span>, typically prescribed for neuropathic pain or metabolic disorders.
+            </li>
+          </ul>
+
+          <p className="mt-4 text-muted">
+            The above output highlights the effectiveness of our OCR pipeline in parsing noisy, handwritten, or low-quality medical prescriptions and transforming them into clean, structured data for downstream processing or integration with healthcare systems.
+          </p>
         </div>
       </div>
-
+    </div>
+  </div>
+</div>
 
 
 <div className="container py-5 my-5">

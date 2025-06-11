@@ -32,7 +32,7 @@ function Home() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             ></motion.h2>
-            <motion.p
+            <motion.div
               className="lead text-muted"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -56,7 +56,7 @@ function Home() {
                   </a>
                 </div>
               </nav>
-            </motion.p>
+            </motion.div>
           </div>
 
           <motion.div

@@ -377,7 +377,13 @@ font-size: 200px
     display: flex;
     align-items: center;
   }
-  
+  .custom-carousel .slick-dots li button {
+  background: #000 !important;
+}
+
+.custom-carousel .slick-dots li.slick-active button {
+  background: #000 !important;
+}
   .extractor-title .anticon {
     margin-right: 8px;
     color: #4a6bdf;
@@ -388,7 +394,9 @@ font-size: 200px
     margin-bottom: 8px;
     border-radius: 6px !important;
   }
-  
+  .bg-purple-avatar{
+    background-color: blueviolet;
+  }
   .medication-header {
     display: flex;
     align-items: center;
@@ -655,7 +663,16 @@ font-size: 200px
   gap: 12px;
   margin-top: 16px;
 }
+.imagecompare{
+  width: 100%;
 
+}
+.chateArea{
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 171, 0.2), 0 6px 20px 0 rgba(0, 9, 173, 0.19)!important;
+  margin-top: 10px;
+  background-color: #f8f8fb !important;
+  border-radius: 30px;
+}
 .upload-button, .process-button {
   min-width: 160px;
 }
