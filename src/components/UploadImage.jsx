@@ -52,8 +52,10 @@ const filterOptions = [
 
 const UploadFile = () => {
   const [fileList, setFileList] = useState([]);
+  const [cropedImages, setcropedImages] = useState([]);
   const [ImageStepsUrl, setImageStepsUrl] = useState([]);
-console.log(ImageStepsUrl);
+console.log(cropedImages);
+
 
   const [messages, setMessages] = useState([
     {
@@ -511,12 +513,19 @@ const resetFilter = async () => {
         "http://localhost:5000/process/extract_text",
         formData
       );
-      const { text, segmented_image } = response.data;
+      console.log(response.data);
+
+      
+      const { full_text, segmented_image ,cropped_images} = response.data;
+      console.log(cropped_images);
+      console.log(cropedImages);
+      
       const processedUrl = `data:image/jpeg;base64,${segmented_image}`;
-      if(text){
+      if(full_text){
         setProgressPercent(100)
       }
-      setExtractedText(text);
+      setcropedImages(cropped_images)
+      setExtractedText(full_text);
       localStorage.setItem("imageAfterSegment",processedUrl)
       showModal()
       extractMedications()
@@ -526,7 +535,7 @@ const resetFilter = async () => {
         ...prev.filter((msg) => msg.type !== "status"),
         {
           type: "extracted-text",
-          content: text,
+          content: full_text,
           sender: "system",
           time: new Date().toLocaleTimeString([], {
             hour: "2-digit",
@@ -544,7 +553,7 @@ const resetFilter = async () => {
       setProcessingStage(null);
     }
   };
-console.log(ImageStepsUrl);
+
 
 
   const renderMessageContent = (message) => {
@@ -653,7 +662,7 @@ const filterMenu = (
     }))}
   />
 );
-console.log(currentImage);
+
 
 
   return (
@@ -918,6 +927,32 @@ console.log(currentImage);
 
           </ul>
         </div>
+      </div>
+    </div>
+        <div>
+      <h5 className="text-center">Step 5: Segmented Images with Extracted Text</h5>
+      <div className="p-4">
+        {fileList.length > 0 ? (
+          <>
+          {cropedImages.map((img)=>{
+
+          return  <AntdImage width={100} height={100} src={`data:image/jpeg;base64,${img}`} />
+          })}
+            <div className="mt-2" style={{ maxWidth: "600px" }}>
+              <p>
+                <strong>Precision OCR Processing:</strong> Each segmented region undergoes specialized processing:
+              </p>
+              <ul>
+                <li><strong>Medical Terminology Focus:</strong> Enhanced dictionary for drug names</li>
+                <li><strong>Dosage Recognition:</strong> Special pattern matching for mg/mL/etc</li>
+                <li><strong>Handwriting Analysis:</strong> Adaptive models for doctor handwriting</li>
+                <li><strong>Context Validation:</strong> Cross-checking between fields</li>
+              </ul>
+            </div>
+          </>
+        ) : (
+          "No cropped image available"
+        )}
       </div>
     </div>
   </Carousel>

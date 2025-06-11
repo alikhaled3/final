@@ -143,6 +143,36 @@ def segment_extract_text(image):
     full_text = " ".join(extracted_text)
     return full_text, Image.fromarray(image_with_boxes)
 
+
+def segment_extract_text_boxes(image):
+    image_np = np.array(image.convert('RGB')) if not isinstance(image, np.ndarray) else image
+    results = yolo_model(image_np)
+    boxes = results[0].boxes.xyxy.cpu().numpy()
+    boxes = sorted(boxes, key=lambda b: b[1])  # Sort by y-coordinate
+    
+    extracted_text = []
+    cropped_images = []
+    image_with_boxes = image_np.copy()
+    
+    for box in boxes:
+        x_min, y_min, x_max, y_max = map(int, box)
+        
+        # Crop and store individual images
+        line_crop = image_np[y_min:y_max, x_min:x_max]
+        cropped_images.append(Image.fromarray(line_crop))
+        
+        # Process text recognition
+        pil_crop = Image.fromarray(line_crop)
+        pixel_values = processor(pil_crop, return_tensors="pt").pixel_values
+        generated_ids = model.generate(pixel_values)
+        text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        extracted_text.append(text)
+        
+        # Draw boxes on visualization image
+        cv2.rectangle(image_with_boxes, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+    
+    full_text = " ".join(extracted_text)
+    return full_text, cropped_images, Image.fromarray(image_with_boxes)
 # --- Routes ---
 @app.route('/audio/<filename>')
 def serve_audio(filename):
@@ -170,17 +200,34 @@ def process_segmentation():
 
 @app.route('/process/extract_text', methods=['POST'])
 def extract_text():
-    print(request.files)
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
+    
     img = Image.open(request.files['image'].stream)
-    text, segmented_img = segment_extract_text(img)
-    output = io.BytesIO()
-    segmented_img.save(output, format='JPEG')
-    output.seek(0)
-    img_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
-    return jsonify({'text': text, 'segmented_image': img_base64})
-
+    
+    # Modified to return full_text, cropped_images, and visualization image
+    full_text, cropped_images, visualization_img = segment_extract_text_boxes(img)
+    
+    # Prepare the visualization image
+    vis_output = io.BytesIO()
+    visualization_img.save(vis_output, format='JPEG')
+    vis_output.seek(0)
+    vis_base64 = base64.b64encode(vis_output.getvalue()).decode('utf-8')
+    
+    # Prepare all cropped images
+    cropped_images_base64 = []
+    for crop in cropped_images:
+        output = io.BytesIO()
+        crop.save(output, format='JPEG')
+        output.seek(0)
+        cropped_images_base64.append(base64.b64encode(output.getvalue()).decode('utf-8'))
+    
+    return jsonify({
+        'full_text': full_text,
+        'segmented_image': vis_base64,  # Image with boxes visualization
+        'cropped_images': cropped_images_base64,  # Array of individual crops
+        'count': len(cropped_images)  # Number of detected boxes
+    })
 # --- Run Server ---
 if __name__ == '__main__':
     app.run(debug=True)
