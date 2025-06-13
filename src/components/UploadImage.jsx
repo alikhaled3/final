@@ -10,7 +10,11 @@ import {
   PauseOutlined,
   PictureOutlined,
   CloseOutlined,
-  CloudUploadOutlined
+  CloudUploadOutlined,
+  HistoryOutlined,
+  StarOutlined,
+  SettingOutlined,
+  QuestionOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -27,14 +31,15 @@ import {
   Menu,
   Modal,
   Carousel,
-
+  Rate,
 } from "antd";
-import { Image as AntdImage } from 'antd';
+import { Image as AntdImage } from "antd";
 import ImgCrop from "antd-img-crop";
 import axios from "axios";
 import MedicationItem from "./MedicationItem";
-import useMedicationExtractor from './../hooks/useMedicationExtractor';
+import useMedicationExtractor from "./../hooks/useMedicationExtractor";
 import Sidebar from "./SideBar";
+import Navbar from "./navBar";
 
 const { Text, Title } = Typography;
 const { Step } = Steps;
@@ -46,16 +51,15 @@ const filterOptions = [
   { key: "sepia", label: "Sepia", value: "sepia" },
   { key: "contrast", label: "High Contrast", value: "contrast" },
   { key: "brightness", label: "Increase Brightness", value: "brightness" },
-  { key: 'sobel', label: 'Sobel Edge Detection' },
-  { key: 'laplacian', label: 'Laplacian Edge Detection' },
+  { key: "sobel", label: "Sobel Edge Detection" },
+  { key: "laplacian", label: "Laplacian Edge Detection" },
 ];
 
 const UploadFile = () => {
   const [fileList, setFileList] = useState([]);
   const [cropedImages, setcropedImages] = useState([]);
   const [ImageStepsUrl, setImageStepsUrl] = useState([]);
-console.log(cropedImages);
-
+  console.log(cropedImages);
 
   const [messages, setMessages] = useState([
     {
@@ -76,8 +80,8 @@ console.log(cropedImages);
   const [selectedFilter, setSelectedFilter] = useState("none");
   const [filteredImage, setFilteredImage] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
-const [showFilterOptions, setShowFilterOptions] = useState(false);
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -91,7 +95,7 @@ const [showFilterOptions, setShowFilterOptions] = useState(false);
     setIsModalOpen(false);
   };
   console.log(fileList);
-  
+
   const {
     medications,
     isLoading: isExtracting,
@@ -131,7 +135,7 @@ const [showFilterOptions, setShowFilterOptions] = useState(false);
     }
   });
 
-const applyFilter = (imageUrl, filterType) => {
+  const applyFilter = (imageUrl, filterType) => {
     return new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = "Anonymous";
@@ -154,14 +158,15 @@ const applyFilter = (imageUrl, filterType) => {
           return [
             imageData.data[offset],
             imageData.data[offset + 1],
-            imageData.data[offset + 2]
+            imageData.data[offset + 2],
           ];
         }
 
         // Convert to grayscale first for edge detection
         if (filterType === "sobel" || filterType === "laplacian") {
           for (let i = 0; i < data.length; i += 4) {
-            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            const gray =
+              0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
             data[i] = data[i + 1] = data[i + 2] = gray;
           }
           ctx.putImageData(imageData, 0, 0);
@@ -170,7 +175,8 @@ const applyFilter = (imageUrl, filterType) => {
         switch (filterType) {
           case "grayscale":
             for (let i = 0; i < data.length; i += 4) {
-              const avg = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+              const avg =
+                0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
               data[i] = data[i + 1] = data[i + 2] = avg;
             }
             break;
@@ -183,9 +189,18 @@ const applyFilter = (imageUrl, filterType) => {
             break;
           case "sepia":
             for (let i = 0; i < data.length; i += 4) {
-              data[i] = Math.min(255, data[i] * 0.393 + data[i + 1] * 0.769 + data[i + 2] * 0.189);
-              data[i + 1] = Math.min(255, data[i] * 0.349 + data[i + 1] * 0.686 + data[i + 2] * 0.168);
-              data[i + 2] = Math.min(255, data[i] * 0.272 + data[i + 1] * 0.534 + data[i + 2] * 0.131);
+              data[i] = Math.min(
+                255,
+                data[i] * 0.393 + data[i + 1] * 0.769 + data[i + 2] * 0.189
+              );
+              data[i + 1] = Math.min(
+                255,
+                data[i] * 0.349 + data[i + 1] * 0.686 + data[i + 2] * 0.168
+              );
+              data[i + 2] = Math.min(
+                255,
+                data[i] * 0.272 + data[i + 1] * 0.534 + data[i + 2] * 0.131
+              );
             }
             break;
           case "contrast":
@@ -206,43 +221,49 @@ const applyFilter = (imageUrl, filterType) => {
             break;
           case "sobel":
             const sobelData = new Uint8ClampedArray(data.length);
-            
+
             // Sobel kernels
             const sobelX = [
               [-1, 0, 1],
               [-2, 0, 2],
-              [-1, 0, 1]
+              [-1, 0, 1],
             ];
-            
+
             const sobelY = [
               [-1, -2, -1],
               [0, 0, 0],
-              [1, 2, 1]
+              [1, 2, 1],
             ];
-            
+
             for (let y = 0; y < canvas.height; y++) {
               for (let x = 0; x < canvas.width; x++) {
                 let pixelX = 0;
                 let pixelY = 0;
-                
+
                 // Apply Sobel kernels
                 for (let ky = -1; ky <= 1; ky++) {
                   for (let kx = -1; kx <= 1; kx++) {
                     const pixel = getPixel(x + kx, y + ky);
                     const gray = pixel[0];
-                    
+
                     pixelX += gray * sobelX[ky + 1][kx + 1];
                     pixelY += gray * sobelY[ky + 1][kx + 1];
                   }
                 }
-                
-                const magnitude = Math.min(255, Math.sqrt(pixelX * pixelX + pixelY * pixelY));
+
+                const magnitude = Math.min(
+                  255,
+                  Math.sqrt(pixelX * pixelX + pixelY * pixelY)
+                );
                 const offset = (y * canvas.width + x) * 4;
-                sobelData[offset] = sobelData[offset + 1] = sobelData[offset + 2] = magnitude;
+                sobelData[offset] =
+                  sobelData[offset + 1] =
+                  sobelData[offset + 2] =
+                    magnitude;
                 sobelData[offset + 3] = 255; // Alpha channel
               }
             }
-            
+
             // Copy the result back to the original data
             for (let i = 0; i < data.length; i++) {
               data[i] = sobelData[i];
@@ -250,18 +271,18 @@ const applyFilter = (imageUrl, filterType) => {
             break;
           case "laplacian":
             const laplacianData = new Uint8ClampedArray(data.length);
-            
+
             // Laplacian kernel
             const laplacianKernel = [
               [0, 1, 0],
               [1, -4, 1],
-              [0, 1, 0]
+              [0, 1, 0],
             ];
-            
+
             for (let y = 0; y < canvas.height; y++) {
               for (let x = 0; x < canvas.width; x++) {
                 let sum = 0;
-                
+
                 // Apply Laplacian kernel
                 for (let ky = -1; ky <= 1; ky++) {
                   for (let kx = -1; kx <= 1; kx++) {
@@ -270,14 +291,17 @@ const applyFilter = (imageUrl, filterType) => {
                     sum += gray * laplacianKernel[ky + 1][kx + 1];
                   }
                 }
-                
+
                 const magnitude = Math.min(255, Math.abs(sum));
                 const offset = (y * canvas.width + x) * 4;
-                laplacianData[offset] = laplacianData[offset + 1] = laplacianData[offset + 2] = magnitude;
+                laplacianData[offset] =
+                  laplacianData[offset + 1] =
+                  laplacianData[offset + 2] =
+                    magnitude;
                 laplacianData[offset + 3] = 255; // Alpha channel
               }
             }
-            
+
             // Copy the result back to the original data
             for (let i = 0; i < data.length; i++) {
               data[i] = laplacianData[i];
@@ -294,50 +318,50 @@ const applyFilter = (imageUrl, filterType) => {
     });
   };
 
-const handleFilterSelect = async (filter) => {
-  console.log('Filter selected:', filter);
-  if (!fileList[0]?.originFileObj) {
-    message.warning('Please upload an image first');
-    return;
-  }
-
-  try {
-    setSelectedFilter(filter);
-    setShowFilterOptions(false);
-
-    const imageUrl = URL.createObjectURL(fileList[0].originFileObj);
-    console.log('Applying filter:', filter);
-    
-    if (filter === 'none') {
-      await resetFilter();
-    } else {
-      const filteredUrl = await applyFilter(imageUrl, filter);
-      setFilteredImage(filteredUrl);
-      setCurrentImage(filteredUrl);
+  const handleFilterSelect = async (filter) => {
+    console.log("Filter selected:", filter);
+    if (!fileList[0]?.originFileObj) {
+      message.warning("Please upload an image first");
+      return;
     }
 
-    URL.revokeObjectURL(imageUrl);
-  } catch (error) {
-    console.error('Error applying filter:', error);
-    message.error('Failed to apply filter');
-  }
-};
+    try {
+      setSelectedFilter(filter);
+      setShowFilterOptions(false);
 
-const resetFilter = async () => {
-  if (!fileList[0]?.originFileObj) return;
+      const imageUrl = URL.createObjectURL(fileList[0].originFileObj);
+      console.log("Applying filter:", filter);
 
-  try {
-    setSelectedFilter("none");
-    const imageUrl = URL.createObjectURL(fileList[0].originFileObj);
-    const normalizedUrl = await normalizeImage(imageUrl);
-    setFilteredImage(null);
-    setCurrentImage(normalizedUrl);
-    URL.revokeObjectURL(imageUrl);
-  } catch (error) {
-    console.error('Error resetting filter:', error);
-    message.error('Failed to reset filter');
-  }
-};
+      if (filter === "none") {
+        await resetFilter();
+      } else {
+        const filteredUrl = await applyFilter(imageUrl, filter);
+        setFilteredImage(filteredUrl);
+        setCurrentImage(filteredUrl);
+      }
+
+      URL.revokeObjectURL(imageUrl);
+    } catch (error) {
+      console.error("Error applying filter:", error);
+      message.error("Failed to apply filter");
+    }
+  };
+
+  const resetFilter = async () => {
+    if (!fileList[0]?.originFileObj) return;
+
+    try {
+      setSelectedFilter("none");
+      const imageUrl = URL.createObjectURL(fileList[0].originFileObj);
+      const normalizedUrl = await normalizeImage(imageUrl);
+      setFilteredImage(null);
+      setCurrentImage(normalizedUrl);
+      URL.revokeObjectURL(imageUrl);
+    } catch (error) {
+      console.error("Error resetting filter:", error);
+      message.error("Failed to reset filter");
+    }
+  };
 
   const normalizeImage = (imageUrl) => {
     return new Promise((resolve) => {
@@ -392,16 +416,16 @@ const resetFilter = async () => {
     setFileList(newFileList);
   };
 
-  const beforeCrop =  (file) => {
+  const beforeCrop = (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = async(e) => {
+      reader.onload = async (e) => {
         const normalizedUrl = await normalizeImage(e.target.result);
         console.log(normalizedUrl);
-        
-        localStorage.setItem('normalizedImage', normalizedUrl)
-          localStorage.setItem('originalImage', e.target.result)
+
+        localStorage.setItem("normalizedImage", normalizedUrl);
+        localStorage.setItem("originalImage", e.target.result);
         const image = new Image();
         image.src = e.target.result;
         image.onload = () => {
@@ -416,10 +440,10 @@ const resetFilter = async () => {
   const onCrop = async (file) => {
     const imageUrl = URL.createObjectURL(file);
     console.log(imageUrl);
-    
-    localStorage.setItem('originalImageUrl', imageUrl);
+
+    localStorage.setItem("originalImageUrl", imageUrl);
     const normalizedUrl = await normalizeImage(imageUrl);
-    localStorage.setItem('normalizedImageUrl', normalizedUrl);
+    localStorage.setItem("normalizedImageUrl", normalizedUrl);
     setFilteredImage(null);
     setSelectedFilter("none");
     setCurrentImage(normalizedUrl);
@@ -515,20 +539,19 @@ const resetFilter = async () => {
       );
       console.log(response.data);
 
-      
-      const { full_text, segmented_image ,cropped_images} = response.data;
+      const { full_text, segmented_image, cropped_images } = response.data;
       console.log(cropped_images);
       console.log(cropedImages);
-      
+
       const processedUrl = `data:image/jpeg;base64,${segmented_image}`;
-      if(full_text){
-        setProgressPercent(100)
+      if (full_text) {
+        setProgressPercent(100);
       }
-      setcropedImages(cropped_images)
+      setcropedImages(cropped_images);
       setExtractedText(full_text);
-      localStorage.setItem("imageAfterSegment",processedUrl)
-      showModal()
-      extractMedications()
+      localStorage.setItem("imageAfterSegment", processedUrl);
+      showModal();
+      extractMedications();
       setCurrentImage(processedUrl);
 
       setMessages((prev) => [
@@ -553,8 +576,6 @@ const resetFilter = async () => {
       setProcessingStage(null);
     }
   };
-
-
 
   const renderMessageContent = (message) => {
     switch (message.type) {
@@ -652,354 +673,393 @@ const resetFilter = async () => {
     }
   };
 
-const filterMenu = (
-  <Menu
-    selectedKeys={[selectedFilter]}
-    onClick={({ key }) => handleFilterSelect(key)}
-    items={filterOptions.map(option => ({
-      key: option.key,
-      label: option.label,
-    }))}
-  />
-);
-
-
+  const filterMenu = (
+    <Menu
+      selectedKeys={[selectedFilter]}
+      onClick={({ key }) => handleFilterSelect(key)}
+      items={filterOptions.map((option) => ({
+        key: option.key,
+        label: option.label,
+      }))}
+    />
+  );
 
   return (
-    <div className="container-fluid p-0 vh-100 ">
-      <div className="row g-0 h-100">
-        {/* Main Content Area */}
-        <div className="col-md-7 p-4 d-flex flex-column h-100">
-          {/* Upload/Drop Area */}
-          <div
-            className={`flex-grow-1 d-flex justify-content-center align-items-center bg-light rounded mb-3 border-dashed ${
-              !currentImage ? "border-2" : "border-1"
-            } border-secondary`}
-            style={{
-              minHeight: "300px",
-              borderStyle: "dashed",
-              transition: "all 0.3s",
-            }}
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.currentTarget.classList.add("border-primary", "bg-info");
-              e.currentTarget.style.backgroundColor = "#e6f7ff";
-            }}
-            onDragLeave={(e) => {
-              e.preventDefault();
-              e.currentTarget.classList.remove("border-primary", "bg-info");
-              e.currentTarget.style.backgroundColor = "";
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              e.currentTarget.classList.remove("border-primary", "bg-info");
-              e.currentTarget.style.backgroundColor = "";
+    <>
+      <div className="container  p-0 vh80">
+        <div className="row g-0 h-100">
+          {/* Sidebar */}
+          {/* Main Content Area */}
 
-              if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                const file = e.dataTransfer.files[0];
-                if (file.type.match("image.*")) {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    setCurrentImage(event.target.result);
-                    setFileList([
-                      {
-                        uid: "-1",
-                        name: file.name,
-                        status: "done",
-                        url: event.target.result,
-                        originFileObj: file,
-                      },
-                    ]);
-                    handleProcessImage();
-                  };
-                  reader.readAsDataURL(file);
+
+          <div className="col-md-6 p-4 me-5 d-flex flex-column h-100">
+            {/* Upload/Drop Area */}
+            <div
+              className={`flex-grow-1 d-flex justify-content-center align-items-center bg-light rounded mb-3 border-dashed ${
+                !currentImage ? "border-2" : "border-1"
+              } border-secondary`}
+              style={{
+                minHeight: "300px",
+                borderStyle: "dashed",
+                transition: "all 0.3s",
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.add("border-primary", "bg-info");
+                e.currentTarget.style.backgroundColor = "#e6f7ff";
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove("border-primary", "bg-info");
+                e.currentTarget.style.backgroundColor = "";
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove("border-primary", "bg-info");
+                e.currentTarget.style.backgroundColor = "";
+
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  const file = e.dataTransfer.files[0];
+                  if (file.type.match("image.*")) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      setCurrentImage(event.target.result);
+                      setFileList([
+                        {
+                          uid: "-1",
+                          name: file.name,
+                          status: "done",
+                          url: event.target.result,
+                          originFileObj: file,
+                        },
+                      ]);
+                      handleProcessImage();
+                    };
+                    reader.readAsDataURL(file);
+                  }
                 }
-              }
-            }}
+              }}
+            >
+              {currentImage ? (
+                <div className="text-center">
+                  <img
+                    src={currentImage}
+                    className="img-fluid rounded shadow"
+                    style={{ maxHeight: "60vh" }}
+                    alt="Prescription"
+                  />
+                </div>
+              ) : (
+                <div className="text-center">
+                  <CloudUploadOutlined
+                    className="text-primary mb-3"
+                    style={{ fontSize: "3rem" }}
+                  />
+                  <h4 className="mb-2">No Prescription Uploaded</h4>
+                  <p className="text-muted">
+                    Drag and drop an image or click upload to begin analysis
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Control Panel */}
+            <div className="card shadow-sm">
+              <div className="card-body">
+                <div className="d-flex flex-wrap justify-content-center gap-3">
+                  <ImgCrop
+                    rotationSlider
+                    beforeCrop={beforeCrop}
+                    onModalOk={onCrop}
+                    minZoom={minZoom}
+                    modalTitle="Crop Prescription"
+                    modalOk="Confirm"
+                    modalCancel="Cancel"
+                    aspect={3 / 4}
+                  >
+                    <Upload
+                      fileList={fileList}
+                      onChange={onUploadChange}
+                      accept="image/*"
+                      maxCount={1}
+                      showUploadList={false}
+                      beforeUpload={(file) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          setImageStepsUrl((prev) => [
+                            ...prev,
+                            { ImageUrl: e.target.result },
+                          ]);
+                          localStorage.setItem(
+                            "originalImageBeforeCrop",
+                            e.target.result
+                          );
+                          setCurrentImage(e.target.result);
+                          setFileList(
+                            [
+                              {
+                                uid: "-1",
+                                name: file.name,
+                                status: "done",
+                                url: e.target.result,
+                                originFileObj: file,
+                              },
+                            ],
+                            () => {
+                              handleProcessImage();
+                            }
+                          );
+                        };
+                        reader.readAsDataURL(file);
+                        return false;
+                      }}
+                    >
+                      <Button
+                        icon={<UploadOutlined />}
+                        size="large"
+                        className="me-2"
+                        type="primary"
+                      >
+                        {fileList.length > 0 ? "Change" : "Upload"}
+                      </Button>
+                    </Upload>
+                  </ImgCrop>
+
+                  {fileList.length > 0 && (
+                    <>
+                      <Dropdown
+                        overlay={filterMenu}
+                        trigger={["click"]}
+                        placement="bottomLeft"
+                        visible={showFilterOptions}
+                        onVisibleChange={setShowFilterOptions}
+                      >
+                        <Button
+                          icon={<PictureOutlined />}
+                          size="large"
+                          className="me-2"
+                        >
+                          Filters
+                        </Button>
+                      </Dropdown>
+
+                      {selectedFilter !== "none" && (
+                        <Button
+                          icon={<CloseOutlined />}
+                          size="large"
+                          onClick={resetFilter}
+                        >
+                          Reset
+                        </Button>
+                      )}
+                      <Button type="primary" size="large" onClick={showModal}>
+                        Image Details
+                      </Button>
+                      <Button
+                        type="primary"
+                        icon={<SendOutlined />}
+                        size="large"
+                        onClick={handleProcessImage}
+                        loading={isLoading}
+                        className="me-2"
+                      >
+                        Analyze
+                      </Button>
+                      {extractedText ? <Rate defaultValue={2.5} /> : ""}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Modal
+            title="Image Processing Steps"
+            closable={{ "aria-label": "Custom Close Button" }}
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
           >
-            {currentImage ? (
-              <div className="text-center">
-                <img
-                  src={currentImage}
-                  className="img-fluid rounded shadow"
-                  style={{ maxHeight: "60vh" }}
-                  alt="Prescription"
-                />
+            <Carousel
+              autoplay={{ dotDuration: true }}
+              autoplaySpeed={3000}
+              className="custom-carousel"
+            >
+              <div>
+                <h5 className="text-center">Step 1: Original Image</h5>
+                <div className="p-4">
+                  <AntdImage
+                    width={200}
+                    src={localStorage.getItem("originalImage")}
+                  />
+                  <p className="mt-2">
+                    This is the original prescription image uploaded by the
+                    user. The system will process this image through several
+                    stages to extract the text content. The quality of this
+                    initial image significantly affects the accuracy of text
+                    extraction.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h5 className="text-center">Step 2: Normalized Image</h5>
+                <div className="p-4">
+                  <AntdImage
+                    width={200}
+                    src={localStorage.getItem("normalizedImage")}
+                  />
+                  <p className="mt-2">
+                    The image undergoes normalization to improve readability.
+                    This includes adjusting brightness, contrast, and removing
+                    noise. Normalization helps standardize the image for better
+                    text recognition, especially important for low-quality or
+                    unevenly lit prescriptions.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h5 className="text-center">Step 3: Cropped Image</h5>
+                <div className="p-4">
+                  {fileList.length > 0 ? (
+                    <>
+                      <AntdImage width={200} src={fileList[0].url} />
+                      <p className="mt-2">
+                        The system automatically crops the image to focus on the
+                        relevant prescription area, removing unnecessary
+                        background. This step improves OCR accuracy by
+                        eliminating distractions and focusing processing power
+                        on the text-containing regions.
+                      </p>
+                    </>
+                  ) : (
+                    "No cropped image available"
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h5 className="text-center">
+                  Step 4: Segmented Image with Extracted Text
+                </h5>
+                <div className="d-flex flex-column align-items-center">
+                  <AntdImage
+                    width={200}
+                    src={localStorage.getItem("imageAfterSegment")}
+                  />
+                  <div className="p-4">
+                    <p>
+                      In this final processing stage, the system performs
+                      Optical Character Recognition (OCR) to extract text from
+                      the prescription. The segmented image shows which areas
+                      were identified as containing text.
+                    </p>
+                    <p>
+                      The extracted text undergoes validation and formatting to
+                      present the prescription information in a structured,
+                      readable format. Common processing includes:
+                    </p>
+                    <ul>
+                      <li>Identifying medication names and dosages</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h5 className="text-center">
+                  Step 5: Segmented Images with Extracted Text
+                </h5>
+                <div className="p-4">
+                  {fileList.length > 0 ? (
+                    <>
+                      {cropedImages.map((img) => {
+                        return (
+                          <AntdImage
+                            width={100}
+                            height={100}
+                            src={`data:image/jpeg;base64,${img}`}
+                          />
+                        );
+                      })}
+                      <div className="mt-2" style={{ maxWidth: "600px" }}>
+                        <p>
+                          <strong>Precision OCR Processing:</strong> Each
+                          segmented region undergoes specialized processing:
+                        </p>
+                        <ul>
+                          <li>
+                            <strong>Medical Terminology Focus:</strong> Enhanced
+                            dictionary for drug names
+                          </li>
+                          <li>
+                            <strong>Dosage Recognition:</strong> Special pattern
+                            matching for mg/mL/etc
+                          </li>
+                          <li>
+                            <strong>Handwriting Analysis:</strong> Adaptive
+                            models for doctor handwriting
+                          </li>
+                          <li>
+                            <strong>Context Validation:</strong> Cross-checking
+                            between fields
+                          </li>
+                        </ul>
+                      </div>
+                    </>
+                  ) : (
+                    "No cropped image available"
+                  )}
+                </div>
+              </div>
+            </Carousel>
+          </Modal>
+
+          {/* Results Sidebar */}
+
+          <div className="col-md-5 my-3 bg-white p-4  border-start h-100 overflow-auto chateArea shadow">
+            <h4 className="mb-4 text-center textResultColor">
+              Analysis Results
+            </h4>
+
+            {messages.length === 0 ? (
+              <div className="alert alert-light text-center">
+                Results will appear here after analysis
               </div>
             ) : (
-              <div className="text-center">
-                <CloudUploadOutlined
-                  className="text-primary mb-3"
-                  style={{ fontSize: "3rem" }}
-                />
-                <h4 className="mb-2">No Prescription Uploaded</h4>
-                <p className="text-muted">
-                  Drag and drop an image or click upload to begin analysis
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Control Panel */}
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <div className="d-flex flex-wrap justify-content-center gap-3">
-                <ImgCrop
-                  rotationSlider
-                  beforeCrop={beforeCrop}
-                  onModalOk={onCrop}
-                  minZoom={minZoom}
-                  modalTitle="Crop Prescription"
-                  modalOk="Confirm"
-                  modalCancel="Cancel"
-                  aspect={3 / 4}
-                >
-                  <Upload
-                    fileList={fileList}
-                    onChange={onUploadChange}
-                    accept="image/*"
-                    maxCount={1}
-                    showUploadList={false}
-                    beforeUpload={(file) => {
-                      const reader = new FileReader();
-                      reader.onload = (e) => {
-                        setImageStepsUrl((prev) => [
-                          ...prev,
-                          { ImageUrl: e.target.result },
-                        ]);
-                        localStorage.setItem(
-                          "originalImageBeforeCrop",
-                          e.target.result
-                        );
-                        setCurrentImage(e.target.result);
-                        setFileList(
-                          [
-                            {
-                              uid: "-1",
-                              name: file.name,
-                              status: "done",
-                              url: e.target.result,
-                              originFileObj: file,
-                            },
-                          ],
-                          () => {
-                            handleProcessImage();
+              <List
+                dataSource={messages}
+                renderItem={(message, index) => (
+                  <List.Item className="p-0 mb-3">
+                    <div className="w-100">
+                      <div className="d-flex align-items-start mb-2">
+                        <Avatar
+                          icon={
+                            message.sender === "user" ? (
+                              <UserOutlined />
+                            ) : (
+                              <RobotOutlined />
+                            )
                           }
-                        );
-                      };
-                      reader.readAsDataURL(file);
-                      return false;
-                    }}
-                  >
-                    <Button
-                      icon={<UploadOutlined />}
-                      size="large"
-                      className="me-2"
-                      type="primary"
-                    >
-                      {fileList.length > 0 ? "Change" : "Upload"}
-                    </Button>
-                  </Upload>
-                </ImgCrop>
-
-                {fileList.length > 0 && (
-                  <>
-
-
-<Dropdown
-  overlay={filterMenu}
-  trigger={["click"]}
-  placement="bottomLeft"
-  visible={showFilterOptions}
-  onVisibleChange={setShowFilterOptions}
->
-  <Button
-    icon={<PictureOutlined />}
-    size="large"
-    className="me-2"
-  >
-    Filters
-  </Button>
-</Dropdown>
-
-                    {selectedFilter !== "none" && (
-                      <Button
-                        icon={<CloseOutlined />}
-                        size="large"
-                        onClick={resetFilter}
-                      >
-                        Reset
-                      </Button>
-                    )}
-                    <Button type="primary" onClick={showModal}>
-                      Imge Details
-                    </Button>
-                                        <Button
-                      type="primary"
-                      icon={<SendOutlined />}
-                      size="large"
-                      onClick={handleProcessImage}
-                      loading={isLoading}
-                      className="me-2"
-                    >
-                      Analyze
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-<Modal
-  title="Image Processing Steps"
-  closable={{ "aria-label": "Custom Close Button" }}
-  open={isModalOpen}
-  onOk={handleOk}
-  onCancel={handleCancel}
->
-  <Carousel autoplay={{ dotDuration: true }} autoplaySpeed={3000} className="custom-carousel">
-    <div>
-      <h5 className="text-center">Step 1: Original Image</h5>
-      <div className="p-4">
-        <AntdImage
-          width={200}
-          src={localStorage.getItem("originalImage")}
-        />
-        <p className="mt-2">
-          This is the original prescription image uploaded by the user. The system will process this image
-          through several stages to extract the text content. The quality of this initial image significantly
-          affects the accuracy of text extraction.
-        </p>
-      </div>
-    </div>
-    
-    <div>
-      <h5 className="text-center">Step 2: Normalized Image</h5>
-      <div className="p-4">
-        <AntdImage
-          width={200}
-          src={localStorage.getItem("normalizedImage")}
-        />
-        <p className="mt-2">
-          The image undergoes normalization to improve readability. This includes adjusting brightness,
-          contrast, and removing noise. Normalization helps standardize the image for better text recognition,
-          especially important for low-quality or unevenly lit prescriptions.
-        </p>
-      </div>
-    </div>
-    
-    <div>
-      <h5 className="text-center">Step 3: Cropped Image</h5>
-      <div className="p-4">
-        {fileList.length > 0 ? (
-          <>
-            <AntdImage width={200} src={fileList[0].url} />
-            <p className="mt-2">
-              The system automatically crops the image to focus on the relevant prescription area,
-              removing unnecessary background. This step improves OCR accuracy by eliminating distractions
-              and focusing processing power on the text-containing regions.
-            </p>
-          </>
-        ) : (
-          "No cropped image available"
-        )}
-      </div>
-    </div>
-    
-    <div>
-      <h5 className="text-center">Step 4: Segmented Image with Extracted Text</h5>
-      <div className="d-flex flex-column align-items-center">
-        <AntdImage
-          width={200}
-          src={localStorage.getItem("imageAfterSegment")}
-        />
-        <div className="p-4">
-          <p>
-            In this final processing stage, the system performs Optical Character Recognition (OCR) to extract
-            text from the prescription. The segmented image shows which areas were identified as containing text.
-          </p>
-          <p>
-            The extracted text undergoes validation and formatting to present the prescription information in
-            a structured, readable format. Common processing includes:
-          </p>
-          <ul>
-            <li>Identifying medication names and dosages</li>
-
-          </ul>
-        </div>
-      </div>
-    </div>
-        <div>
-      <h5 className="text-center">Step 5: Segmented Images with Extracted Text</h5>
-      <div className="p-4">
-        {fileList.length > 0 ? (
-          <>
-          {cropedImages.map((img)=>{
-
-          return  <AntdImage width={100} height={100} src={`data:image/jpeg;base64,${img}`} />
-          })}
-            <div className="mt-2" style={{ maxWidth: "600px" }}>
-              <p>
-                <strong>Precision OCR Processing:</strong> Each segmented region undergoes specialized processing:
-              </p>
-              <ul>
-                <li><strong>Medical Terminology Focus:</strong> Enhanced dictionary for drug names</li>
-                <li><strong>Dosage Recognition:</strong> Special pattern matching for mg/mL/etc</li>
-                <li><strong>Handwriting Analysis:</strong> Adaptive models for doctor handwriting</li>
-                <li><strong>Context Validation:</strong> Cross-checking between fields</li>
-              </ul>
-            </div>
-          </>
-        ) : (
-          "No cropped image available"
-        )}
-      </div>
-    </div>
-  </Carousel>
-  
-
-</Modal>
-        {/* Results Sidebar */}
-        <div className="col-md-5 bg-white p-4 border-start h-100 overflow-auto chateArea shadow">
-          <h4 className="mb-4">Analysis Results</h4>
-
-          {messages.length === 0 ? (
-            <div className="alert alert-light text-center">
-              Results will appear here after analysis
-            </div>
-          ) : (
-            <List
-              dataSource={messages}
-              renderItem={(message, index) => (
-                <List.Item className="p-0 mb-3">
-                  <div className="w-100">
-                    <div className="d-flex align-items-start mb-2">
-                      <Avatar
-                        icon={
-                          message.sender === "user" ? (
-                            <UserOutlined />
-                          ) : (
-                            <RobotOutlined />
-                          )
-                        }
-                        className={`me-3  bg-purple-avatar`}
-                      />
-                      <div className="flex-grow-1">
-                        {renderMessageContent(message)}
-                        <small className="text-muted d-block mt-1">
-                          {message.time}
-                        </small>
+                          className={`me-3 bg-purple-avatar`}
+                        />
+                        <div className="flex-grow-1">
+                          {renderMessageContent(message)}
+                          <small className="text-muted d-block mt-1">
+                            {message.time}
+                          </small>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </List.Item>
-              )}
-              className="message-list"
-            />
-          )}
+                  </List.Item>
+                )}
+                className="message-list"
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -23,11 +23,26 @@ import prescription2 from '../assets/download (3).jpg';
 import prescription4 from '../assets/download (1).jpg';
 import image1 from '../assets/images (1).jpg';
 import image2 from '../assets/imageeee.jpg';
+
 import image3 from '../assets/pexels-photo-7578803.webp';
 import scanImage from '../assets/Illustration-of-a-prescription-coming-out-of-a-computer-576x486.jpg';
 import prescription3 from '../assets/FdZcM0WaMAASabt_1664381414282_1664381437487_1664381437487.webp';
 import ReactCompareImage from 'react-compare-image';
+import { PrescriptionErrorMap } from '../components/map';
 
+const makePassiveEventListeners = () => {
+  if (typeof window !== 'undefined') {
+    const originalAddEventListener = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function(type, listener, options) {
+      const newOptions = typeof options === 'boolean' ? options : {
+        ...options,
+        passive: true
+      };
+      return originalAddEventListener.call(this, type, listener, newOptions);
+    };
+  }
+};
+makePassiveEventListeners();
 // Add this style tag to include the Caveat font from Google Fonts
 const caveatStyle = {
   fontFamily: "'Caveat', cursive",
@@ -114,7 +129,7 @@ const Index = () => {
       {/* Modern Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
         <div className="container-fluid">
-          <a className="navbar-brand fw-bold fs-5 text-primary d-flex align-items-center" href="/" style={caveatStyle}>
+          <a className="navbar-brand fw-bold fs-3 text-primary d-flex align-items-center" href="/" style={caveatStyle}>
             <span className="text-white rounded-circle me-2 d-inline-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px' }}>
               <img src={logo} alt="" width={59} />
             </span>
@@ -218,6 +233,7 @@ const Index = () => {
               </Col>
             ))}
           </Row>
+          <PrescriptionErrorMap />
 
           <motion.div
             className="alert alert-warning mt-4"
@@ -225,6 +241,7 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
           >
+
             <WarningOutlined className="me-2" />
             <strong>Did you know?</strong> A study published in the Journal of the American Medical Association found that 
             medication errors harm at least 1.5 million people annually in the US, with illegible handwriting being 
@@ -232,10 +249,9 @@ const Index = () => {
           </motion.div>
         </div>
       </div>
-
 <div className="container">
   <div className="row">
-    <h3 className="text-center mb-4">OCR Demonstration and Result Analysis</h3>
+    <h3 className="text-center mb-4 text-primary mt-4">OCR Demonstration and Result Analysis</h3>
 
     {/* Left: Image Comparison */}
     <div className="col-md-6">
@@ -256,7 +272,7 @@ const Index = () => {
       <div className="ps-md-4 mt-5">
         {/* OCR Result */}
         <div className="border-top pt-4 mt-4">
-          <h5 className="fw-bold mb-3">Extracted Text Output</h5>
+          <h5 className="fw-bold mb-3 text-primary">Extracted Text Output</h5>
           <p className="fst-italic">
             "10 . tat . refenolvadex . 1x2 . fall . y Kro can trental sr 400 1x2 y thiotacid . cup 600 &quot;m. jee ."
           </p>
@@ -267,13 +283,13 @@ const Index = () => {
           </p>
           <ul className="list-unstyled">
             <li className="mb-2">
-              <strong className="text-dark">Nolvadex</strong> — Detected as part of the handwritten content, commonly used in hormone therapy treatments.
+              <strong className="text-primary">Nolvadex</strong> — Detected as part of the handwritten content, commonly used in hormone therapy treatments.
             </li>
             <li className="mb-2">
-              <strong className="text-dark">Trental</strong> — Identified with a prescribed dosage of <span className="text-success">400 mg</span>. It is often used to improve blood flow in patients with circulation problems.
+              <strong className="text-primary">Trental</strong> — Identified with a prescribed dosage of <span className="text-success">400 mg</span>. It is often used to improve blood flow in patients with circulation problems.
             </li>
             <li>
-              <strong className="text-dark">Thiotacid</strong> — Extracted with a dosage of <span className="text-success">600 mg</span>, typically prescribed for neuropathic pain or metabolic disorders.
+              <strong className="text-primary">Thiotacid</strong> — Extracted with a dosage of <span className="text-success">600 mg</span>, typically prescribed for neuropathic pain or metabolic disorders.
             </li>
           </ul>
 

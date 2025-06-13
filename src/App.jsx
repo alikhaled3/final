@@ -4,6 +4,9 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import Index from './pages/firstPage';
 import { useState } from 'react';
+import HelpCenterPage from './components/helpCenterPage';
+import HistoryPage from './components/History';
+import SettingsPage from './components/Setting';
 
 
 function App() {
@@ -31,7 +34,9 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route path="/home" element={<Home />} />
-        
+        <Route path="/helpcenterpage" element={<HelpCenterPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/history" element={<HistoryPage />} />
         <Route path="/" element={<Index />} />
       </Routes>
       {loading && <div>Loading...</div>}

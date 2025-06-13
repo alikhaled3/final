@@ -1,95 +1,53 @@
 import React, { useState } from 'react';
-import { Tooltip} from 'antd';
-import {
-  HomeOutlined,
-  MessageOutlined,
-  SettingOutlined,
-  UserOutlined,
-  MenuOutlined,
-  MobileOutlined,
-} from '@ant-design/icons';
-import img from '../assets/images.jpg'
+import { House, Chat, Person, Gear, List } from 'react-bootstrap-icons';
+import img from '../assets/images.jpg';
+import { HistoryOutlined, QuestionOutlined, SettingOutlined, StarOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+
 const Sidebar = () => {
-  const [open, setOpen] = useState(false);
-
-  const menuItems = [
-    { icon: <HomeOutlined />, label: 'Home' },
-    { icon: <MessageOutlined />, label: 'Messages' },
-
-  ];
-  const menuItemsend = [
-    { icon: <UserOutlined />, label: 'Profile' },
-    { icon: <MobileOutlined />,   mobileLaber:'Mobile'   , img:<img src={img} alt="" /> },
-
-    { icon: <SettingOutlined />, label: 'Settings' },
-  ];
-
+  const navigate = useNavigate();
   return (
-    <div
-      className="bg-dark text-white d-flex flex-column justify-content-between p-5 "
-      style={{
-        width: open ? '270px' : '50px',
-        height: '100vh',
-        position: 'fixed',
-        transition: 'width 0.3s ease',
-      }}
-    >
-      {/* Toggle Button */}
+<div className="col-md-2 bg-dark text-white p-3 d-flex flex-column">
+  <div className="sidebar-header mb-4">
+    <h4 className="text-center">Pharmacology.AI</h4>
+    <hr className="bg-light" />
+  </div>
+  
+  <div className="flex-grow-1">
+    <div className="d-flex flex-column gap-2">
 
-      <div className="">
-      <div
-        className="d-flex align-items-center mb-4 cursor-pointer me-5"
-        onClick={() => setOpen(!open)}
-        style={{ cursor: 'pointer' }}
-        >
-        <MenuOutlined style={{ fontSize: '20px', color: '#fff' }} />
-        {open && <span className="ms-2"></span>}
-      </div>
-
-      {/* Menu Items */}
-      {menuItems.map((item, index) => (
-        <div
-        key={index}
-        className="d-flex align-items-center gap-2 my-3 sidebar-icon"
-        style={{
-          padding: '8px',
-          borderRadius: '8px',
-          transition: 'background 0.3s',
-          cursor: 'pointer',
-        }}
-        >
-          <Tooltip title={!open ? item.label : ''} placement="right">
-            <span style={{ fontSize: '18px', color: '#ccc' }}>{item.icon}</span>
-          </Tooltip>
-          {open && <span className="ms-2">{item.label}</span>}
-        </div>
-      ))}
-      </div>
-      <div className="">
-              {menuItemsend.map((item, index) => (
-        <div
-          key={index}
-          className="d-flex align-items-center gap-2 my-3 sidebar-icon"
-          style={{
-            padding: '8px',
-            borderRadius: '8px',
-            transition: 'background 0.3s',
-            cursor: 'pointer',
-          }}
-        >
-          <Tooltip title={!open ? item.label : item.img} placement="right">
-            <span style={{ fontSize: '18px', color: '#ccc' }}>{item.icon}</span>
-          </Tooltip>
-          {open && <span className="ms-2">
-
-            {item.label || item.mobileLaber}
-            
-            </span>}
-        </div>
-      ))}
-      </div>
-
+      <button className="btn btn-dark text-start py-2 d-flex align-items-center">
+        <HistoryOutlined className="me-2" />
+        History
+      </button>
+      <button className="btn btn-dark text-start py-2 d-flex align-items-center" >
+        <StarOutlined className="me-2" />
+        Saved Results
+      </button>
+      <button className="btn btn-dark text-start py-2 d-flex align-items-center">
+        <SettingOutlined className="me-2" />
+        Settings
+      </button>
     </div>
+  </div>
+
+  <div className="mt-auto">
+    <div className="text-center mb-3">
+      <button className="btn btn-primary py-2" onClick={()=>navigate('helpcenterpage')}>
+        <QuestionOutlined className="me-2" />
+        Help Center
+      </button>
+    </div>
+    <div className="text-center">
+      <div className="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+           style={{ width: '40px', height: '40px' }}>
+        <UserOutlined />
+      </div>
+      <p className="mb-0">User Name</p>
+      <small className="text-muted">user@example.com</small>
+    </div>
+  </div>
+</div>
   );
 };
 

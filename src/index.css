@@ -380,6 +380,38 @@ font-size: 200px
   .custom-carousel .slick-dots li button {
   background: #000 !important;
 }
+.map-selected {
+  fill: #ebebeb;
+}
+
+.map-unselected {
+  fill: #699EAA;
+}
+
+.map-selected:hover, .map-unselected:hover {
+  cursor: pointer;
+}
+
+.bgUploadPage{
+background: linear-gradient(rgba(226, 226, 226, 0.692), rgba(248, 248, 253, 0.546)), url(assets/Pattern.svg);
+
+}
+
+.blueText{
+  color: #1b32ff;
+}
+.Text1{
+  color: #ff4d4f;
+}
+.Text2{
+  color: #1890ff;
+}
+.Text3{
+  color: #52c41a;
+}
+.Text4{
+  color: #722ed1;
+}
 
 .custom-carousel .slick-dots li.slick-active button {
   background: #000 !important;
@@ -667,9 +699,14 @@ font-size: 200px
   width: 100%;
 
 }
+.vh80{
+height: 90vh;
+}
+.textResultColor{
+  color: #283185;
+}
 .chateArea{
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 171, 0.2), 0 6px 20px 0 rgba(0, 9, 173, 0.19)!important;
-  margin-top: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 226, 0.2), 0 6px 20px 0 rgba(0, 6, 113, 0.19)!important;
   background-color: #f8f8fb !important;
   border-radius: 30px;
 }
