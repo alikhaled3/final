@@ -537,7 +537,7 @@ const UploadFile = () => {
       simulateProcessing();
 
       const response = await axios.post(
-        "http://localhost:5000/process/extract_text",
+        `http://localhost:5000/process/extract_text?${modelType}`,
         formData
       );
       console.log(response.data);
@@ -695,8 +695,8 @@ const handleMenuClick = e => {
 const items = [
   {
     label: 'Crnn',
-    key: 'trcr',
-    value:'trcr',
+    key: 'crnn',
+    value:'crnn',
     icon: <UserOutlined />,
   },
   {
