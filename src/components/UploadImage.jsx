@@ -537,7 +537,7 @@ const UploadFile = () => {
       simulateProcessing();
 
       const response = await axios.post(
-        `http://localhost:5000/process/extract_text?${modelType}`,
+        `http://localhost:5000/process/extract_text?model=${modelType}`,
         formData
       );
       console.log(response.data);
@@ -700,8 +700,8 @@ const items = [
     icon: <UserOutlined />,
   },
   {
-    value:'Trocr',
-    label: 'trocr',
+    label: 'Trocr',
+    value:'trocr',
     key: 'trocr',
     icon: <UserOutlined />,
   },
