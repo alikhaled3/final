@@ -15,6 +15,7 @@ import {
   StarOutlined,
   SettingOutlined,
   QuestionOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -32,6 +33,7 @@ import {
   Modal,
   Carousel,
   Rate,
+  Space,
 } from "antd";
 import { Image as AntdImage } from "antd";
 import ImgCrop from "antd-img-crop";
@@ -78,6 +80,7 @@ const UploadFile = () => {
   const [progressPercent, setProgressPercent] = useState(0);
   const [extractedText, setExtractedText] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("none");
+  const [modelType, setModelType] = useState("trocr");
   const [filteredImage, setFilteredImage] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
@@ -684,6 +687,31 @@ const UploadFile = () => {
     />
   );
 
+const handleMenuClick = e => {
+  message.info('Click on menu item.');
+  setModelType(e.key)
+  console.log('click', e);
+};
+const items = [
+  {
+    label: 'Crnn',
+    key: 'trcr',
+    value:'trcr',
+    icon: <UserOutlined />,
+  },
+  {
+    value:'Trocr',
+    label: 'trocr',
+    key: 'trocr',
+    icon: <UserOutlined />,
+  },
+
+];
+const menuProps = {
+  items,
+  onClick: handleMenuClick,
+};
+
   return (
     <>
       <div className="container  p-0 vh80">
@@ -842,6 +870,14 @@ const UploadFile = () => {
                           Filters
                         </Button>
                       </Dropdown>
+                          <Dropdown menu={menuProps}>
+                    <Button>
+                      <Space>
+                       { modelType}
+                        <DownOutlined />
+                      </Space>
+                    </Button>
+                  </Dropdown>
 
                       {selectedFilter !== "none" && (
                         <Button
